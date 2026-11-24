@@ -1,12 +1,12 @@
-<html><body style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#222;max-width:900px"><h1>Applied AI Daily Intelligence Brief</h1>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#222;max-width:900px;margin:0 auto;padding:16px"><h1>Applied AI Daily Intelligence Brief</h1>
 <p><b>Date:</b> Monday, 2026-11-23 (baseline run; first execution)</p>
-<p><b>Research window:</b> 2026-10-24 00:00 → 2026-11-23 23:00 America/New_York (30-day baseline)</p>
+<p><b>Research window:</b> 2026-10-24 00:00 &#8594; 2026-11-23 23:00 America/New_York (30-day baseline)</p>
 <p><b>Number of items reviewed:</b> ~95 candidate items across three scans (frontier labs, research papers, developer/enterprise platforms), plus 23 foundational resources</p>
 <p><b>New items selected:</b> 66 recent items recorded in the tracker (AI-0024 to AI-0089) + 23 foundational (AI-0001 to AI-0023)</p>
 <p><b>Previously pending items:</b> 0 (first run)</p>
 <p><b>Delivery note:</b> Saved to the repo (markdown and HTML). NOT emailed: the Gmail connector was authorized in claude.ai but is not connected to this Claude Code session, and the connector exposes no send tool (drafts only). Web research was live; every item was spot-checked against its primary page or arXiv abstract by the orchestrating agent.</p>
 <hr>
-<h2>Section 1 – The five things I should know today</h2>
+<h2>Section 1 &#8211; The five things I should know today</h2>
 <h3>1. Compaction beats long context, and most "agent memory" products lose to plain RAG (AI-0064, AI-0065)</h3>
 <ul>
 <li><b>What happened:</b> Two preprints in the window quantify what good agent builders suspected. NVIDIA's <i>You don't need long context</i> shows frontier models held to short contexts with frequent compaction match full-history baselines within a few points on SWE-bench Verified, Terminal-Bench 2.1, tau2-bench and BFCLv3, at 2-9x modeled savings. <i>Memory Tax</i> benchmarks 11 memory systems against 2-round RAG over raw history: 90 of 99 configurations lose.</li>
@@ -32,7 +32,7 @@
 <ul>
 <li><b>What happened:</b> Microsoft Ignite (Nov 17-18) shipped Foundry Agent Service hosted agents, a managed Copilot harness, egress policy, Entra Agent ID, Agent 365 as a cross-platform agent registry, Defender discovery/blocking of local agents (Claude Code, Copilot CLI) and an MCP Firewall. AWS AgentCore added Runtime V2 resource configs, GPU instances, a direct web-search API, org-level Resource Control Policies and JWT-claim condition keys. Google's Gemini Enterprise Agent Platform added 3-legged OAuth for A2A agents and VPC/static-IP egress for custom MCP servers.</li>
 <li><b>Why it matters:</b> The enterprise reference architecture for agents is now a product category with the same shape on every cloud. Security teams will require agent identities, egress controls, and MCP allow-lists.</li>
-<li><b>Technically interesting:</b> Foundry's closed loop (production traces → failure clustering → optimizer proposes eval-gated changes → managed training) changes the ops model from manual prompt tuning to continuous, evaluation-gated improvement. AgentCore's committed-baseline + 4x burst pricing is a new cost model for agent sessions.</li>
+<li><b>Technically interesting:</b> Foundry's closed loop (production traces &#8594; failure clustering &#8594; optimizer proposes eval-gated changes &#8594; managed training) changes the ops model from manual prompt tuning to continuous, evaluation-gated improvement. AgentCore's committed-baseline + 4x burst pricing is a new cost model for agent sessions.</li>
 <li><b>Learn/investigate:</b> Read the Foundry and AgentCore release notes (50 min) and the comparison table in the knowledge base (Section 5.B). For GCP-first work, read the Gemini Enterprise release notes (15 min).</li>
 </ul>
 <h3>5. MCP matured on two fronts: a predictable release calendar and a security wave (AI-0054, AI-0055, AI-0056, AI-0068)</h3>
@@ -43,7 +43,7 @@
 <li><b>Learn/investigate:</b> Inventory MCP servers in use at C&amp;T and client projects; apply the controls in the knowledge base Section 5.D. Read the release-cycle post (10 min).</li>
 </ul>
 <hr>
-<h2>Section 2 – Research paper discoveries</h2>
+<h2>Section 2 &#8211; Research paper discoveries</h2>
 <p>Organized by subject. Full intelligence cards for the P1 papers; compact cards for P2; P3 papers are listed at the end with tracker IDs.</p>
 <h3>2.1 Context, memory, and cost</h3>
 <h4>Research paper intelligence card: You don't need long context (AI-0064)</h4>
@@ -82,7 +82,7 @@
 <p><b>8. Learning recommendation</b> 60 min, detailed. Prerequisites: AI-0004 (RAG), AI-0009. Questions: (1) Define memory benefit vs. memory tax. (2) Why does reorganization lose evidence? (3) What baseline must a memory product beat? Key concept: net value, not recall, decides whether to add memory.</p>
 <p><b>Compact cards (P2)</b></p>
 <ul>
-<li><b>Length Is Cheap, Competition Is Not (AI-0076, UCSD, 2026-11-03):</b> context rot in retrieval is driven by competing evidence and rival values, not length; attention mass on evidence predicts loss (up to 58% of variance). Models ≤3B; predictive not causal. For RAG: dedupe and resolve conflicts. 30 min.</li>
+<li><b>Length Is Cheap, Competition Is Not (AI-0076, UCSD, 2026-11-03):</b> context rot in retrieval is driven by competing evidence and rival values, not length; attention mass on evidence predicts loss (up to 58% of variance). Models &#8804;3B; predictive not causal. For RAG: dedupe and resolve conflicts. 30 min.</li>
 <li><b>Context Language Models (AI-0075, reported UW + Meta FAIR, 2026-09-29, ICLR 2027 submission):</b> the model edits its context as a file; reported +11.4% BrowseComp-Plus at -21.5% FLOPs. Scores unverified (OpenReview wall). 45 min.</li>
 </ul>
 <h3>2.2 Agent security</h3>
@@ -111,8 +111,8 @@
 <p><b>6-8.</b> Hands-on: expose one internal capability both ways and compare 20 tasks. Critical: no code, three environments, per-environment numbers not extracted. 40 min. Questions: (1) What is MICA controlling for? (2) What does DART repair? (3) Name two interface decisions that could change agent behavior. Key concept: the tool surface is part of the model's environment.</p>
 <p><b>Compact cards (P2)</b></p>
 <ul>
-<li><b>ToolSpace (AI-0069, Renmin/Fudan/SJTU, 2026-11-03):</b> environments synthesized from real MCP traces with execution-verified dependencies; Qwen3.6-35B-A3B 23.0 → 41.0 on a 7-benchmark average; GLM-5.2 backbone matches Claude Opus 5 (56.6). Work in progress, no code. 60 min.</li>
-<li><b>Actor, Judge, or Teacher? (AI-0074, Zhejiang/Baidu, 2026-11-12):</b> decision models are poor actors on ordered tasks but good judges and cheap RL teachers (Qwen2.5-1.5B + GRPO 72.8 → 82.9% ALFWorld for ~$22-30). Code available. 40 min.</li>
+<li><b>ToolSpace (AI-0069, Renmin/Fudan/SJTU, 2026-11-03):</b> environments synthesized from real MCP traces with execution-verified dependencies; Qwen3.6-35B-A3B 23.0 &#8594; 41.0 on a 7-benchmark average; GLM-5.2 backbone matches Claude Opus 5 (56.6). Work in progress, no code. 60 min.</li>
+<li><b>Actor, Judge, or Teacher? (AI-0074, Zhejiang/Baidu, 2026-11-12):</b> decision models are poor actors on ordered tasks but good judges and cheap RL teachers (Qwen2.5-1.5B + GRPO 72.8 &#8594; 82.9% ALFWorld for ~$22-30). Code available. 40 min.</li>
 </ul>
 <h3>2.4 Retrieval</h3>
 <ul>
@@ -124,9 +124,9 @@
 <li><b>Evolving Infra (AI-0071, Georgia Tech/UIUC/Berkeley/NVIDIA/OpenAI/MIT, 2026-11-09):</b> runtime prefill/decode role switching (6.2 s) plus agent-aware KV eviction; 1.10-2.73x throughput and up to 13.92x lower P95 TTFT vs Dynamo on replayed Claude Code traces. Code public. 60 min.</li>
 </ul>
 <h3>2.6 P3 and Watchlist papers recorded (read on demand)</h3>
-<p>AI-0077 Multiscale Policy Optimization · AI-0078 Training with a Single Algorithm · AI-0079 LoCo reasoning compression · AI-0080 Latent tool-output compression · AI-0081 OPD mismatch budget · AI-0082 RepoFactory · AI-0083 DICE speculative decoding · AI-0084 SteerDistill · AI-0085 Clover diffusion LLM (Watchlist) · AI-0086 Beam technical report · AI-0087 Jagged Robustness under quantization · AI-0088 AltRA-Test for LLM judges · AI-0089 The novelty exposed.</p>
+<p>AI-0077 Multiscale Policy Optimization &#183; AI-0078 Training with a Single Algorithm &#183; AI-0079 LoCo reasoning compression &#183; AI-0080 Latent tool-output compression &#183; AI-0081 OPD mismatch budget &#183; AI-0082 RepoFactory &#183; AI-0083 DICE speculative decoding &#183; AI-0084 SteerDistill &#183; AI-0085 Clover diffusion LLM (Watchlist) &#183; AI-0086 Beam technical report &#183; AI-0087 Jagged Robustness under quantization &#183; AI-0088 AltRA-Test for LLM judges &#183; AI-0089 The novelty exposed.</p>
 <hr>
-<h2>Section 3 – Frontier AI company updates</h2>
+<h2>Section 3 &#8211; Frontier AI company updates</h2>
 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:13px"><tr><th align="left">Company</th><th align="left">Development (date)</th><th align="left">Availability</th><th align="left">Architect takeaway</th><th align="left">ID</th></tr>
 <tr><td valign="top">Anthropic</td><td valign="top">Claude Fable 5.2 / Mythos 5.2 (2026-11-09); platform: message threads, self-hosted Managed Agents, linked billing, Enterprise Frontier Safeguards (Oct 28-Nov 23)</td><td valign="top">Fable GA on Claude Platform, Bedrock, GCP, Foundry; Mythos gated</td><td valign="top">1M context, 128k output, $8/$40; same IDs across clouds; 5.2 requires 30-day retention unless ZDR authorized; EFS writes sealed safety data to your bucket</td><td valign="top">AI-0025, AI-0048</td></tr>
 <tr><td valign="top">OpenAI</td><td valign="top">GPT-6.2 Astra / Sol (2026-11-17); GPT-6 Cyber (2026-11-05); Agent Builder shutdown (2026-11-30)</td><td valign="top">GA (API, Codex, ChatGPT Work); Cyber gated to Daybreak Red</td><td valign="top">Sol at $2/$10 is the volume default; system card flags obstacle-omission regression; migrate Agent Builder workflows to Agents SDK code now</td><td valign="top">AI-0024, AI-0036, AI-0050</td></tr>
@@ -137,10 +137,10 @@
 <tr><td valign="top">Moonshot / Tencent / Alibaba / Zhipu</td><td valign="top">Kimi K3.1 Pro weights (11-04); Hy4 weights + system card (11-20); Qwen4-Max (11-16, proprietary); GLM-5.4 looped transformer (11-23)</td><td valign="top">Weights (K3.1 Pro, Hy4); API only (Qwen4-Max, GLM-5.4)</td><td valign="top">Strongest open model is Chinese (K3.1 Pro, AA 46); licence thresholds need legal review; looped-depth trend</td><td valign="top">AI-0032, AI-0033, AI-0030, AI-0039</td></tr>
 <tr><td valign="top">Thinking Machines</td><td valign="top">Inkling 2 Small (11-05) and Inkling 2 Mini (11-20)</td><td valign="top">Open weights</td><td valign="top">Mini: 26.4B/3.4B-active looped MoE in ~20 GB; on Ollama/llama.cpp/vLLM; strong SWE-bench Verified, weak long-horizon terminal</td><td valign="top">AI-0034, AI-0035</td></tr>
 <tr><td valign="top">NVIDIA</td><td valign="top">Nemotron for Science (11-16)</td><td valign="top">HF; licence not stated</td><td valign="top">Post-train open VLM on domain data to beat a frontier API at lower cost: pattern for on-prem regulated workloads</td><td valign="top">AI-0038</td></tr>
-<tr><td valign="top">Amazon, DeepSeek, xAI, Cohere, AI21, Databricks, Ai2</td><td valign="top">No notable model release in window</td><td valign="top">—</td><td valign="top">re:Invent starts 2026-11-30; Databricks shipped Genie product updates only</td><td valign="top">—</td></tr>
+<tr><td valign="top">Amazon, DeepSeek, xAI, Cohere, AI21, Databricks, Ai2</td><td valign="top">No notable model release in window</td><td valign="top">&#8212;</td><td valign="top">re:Invent starts 2026-11-30; Databricks shipped Genie product updates only</td><td valign="top">&#8212;</td></tr>
 </table>
 <hr>
-<h2>Section 4 – AI products and developer ecosystem</h2>
+<h2>Section 4 &#8211; AI products and developer ecosystem</h2>
 <ul>
 <li><b>Agent runtimes and governance:</b> Microsoft Foundry Agent Service (AI-0043), Agent 365/Entra Agent ID (AI-0044), AWS AgentCore (AI-0046), Gemini Enterprise Agent Platform (AI-0052). See knowledge base 5.B for the side-by-side.</li>
 <li><b>Coding agents:</b> GitHub Copilot Fusion GA with Cascade/Critique multi-model workflows and per-model billing (AI-0047); Claude Ship with policy-as-file approvals (AI-0049; not for ZDR/HIPAA/CMEK orgs); Codex remote sessions and SPIFFE identity (AI-0050); Microsoft Copilot SDK 2.0 as an embeddable multi-tenant harness (AI-0045); Google Antigravity consolidation and Jules shutdown Dec 31 (AI-0051); Kiro enforced sandboxing for local MCP (AI-0053).</li>
@@ -151,24 +151,24 @@
 <li><b>Deadlines this fortnight:</b> OpenAI Agent Builder/Prompt Objects off 2026-11-30; Gemini 4 Carbon intro pricing ends 2026-11-30; Opus 4.8 fast mode removed 2026-11-30; Claude Code managed marketplaces auto-update from 2026-11-30.</li>
 </ul>
 <hr>
-<h2>Section 5 – Applied AI architecture and engineering insight: context budgeting and compaction for long-running agents</h2>
+<h2>Section 5 &#8211; Applied AI architecture and engineering insight: context budgeting and compaction for long-running agents</h2>
 <p><b>Executive summary.</b> Treat the context window as a budgeted, degrading resource. Carry state, not history. Retrieve from raw history. Validate per model.</p>
 <p><b>Why this matters now.</b> Three results in this window converge: compaction is near-lossless for frontier models (AI-0064); dedicated memory layers usually lose to 2-round RAG over raw history (AI-0065); and rot comes from competing evidence more than from length (AI-0076). Anthropic's context-engineering guidance (AI-0012) already prescribed these levers; the papers quantify them.</p>
 <p><b>Reference design for an agent loop (vendor-neutral):</b></p>
 <pre style="background:#f4f4f4;padding:10px;border-radius:4px;font-size:12px;overflow-x:auto">
-[Task spec]  ──►  System prompt (altitude: heuristics, not rules)
+[Task spec]  &#9472;&#9472;&#9658;  System prompt (altitude: heuristics, not rules)
                   Tool set (minimal, non-overlapping; MCP or CLI, measured)
-                  Working context  ◄── budget B (e.g., 16K-48K tokens)
-                       │
-   each step:          ├─ model proposes action → runtime executes → observation
-                       ├─ observation is untrusted: strip/mark, truncate, dedupe
-                       ├─ if tokens &gt; 0.8·B: COMPACT → state object:
-                       │     { task (verbatim), progress, intentions/next steps,
-                       │       artifacts (paths, ids, partial results), open questions }
-                       │   then restart context = [system, task, state]
-                       └─ durable notes → file/DB (episodic log); never trusted as instructions
-   retrieval:          raw-history store (turns + metadata) → 2-round RAG when needed
-   evaluation:         accuracy, tokens/task, $/task, P95 latency, at B ∈ {16K, 48K, ∞}
+                  Working context  &#9668;&#9472;&#9472; budget B (e.g., 16K-48K tokens)
+                       &#9474;
+   each step:          &#9500;&#9472; model proposes action &#8594; runtime executes &#8594; observation
+                       &#9500;&#9472; observation is untrusted: strip/mark, truncate, dedupe
+                       &#9500;&#9472; if tokens &gt; 0.8&#183;B: COMPACT &#8594; state object:
+                       &#9474;     { task (verbatim), progress, intentions/next steps,
+                       &#9474;       artifacts (paths, ids, partial results), open questions }
+                       &#9474;   then restart context = [system, task, state]
+                       &#9492;&#9472; durable notes &#8594; file/DB (episodic log); never trusted as instructions
+   retrieval:          raw-history store (turns + metadata) &#8594; 2-round RAG when needed
+   evaluation:         accuracy, tokens/task, $/task, P95 latency, at B &#8712; {16K, 48K, &#8734;}
 </pre>
 <p><b>Design rules.</b></p>
 <ol>
@@ -181,7 +181,7 @@
 <li>Platform hooks: AgentCore and Foundry both provide session persistence and summarization primitives; Claude's message threads keep state server-side (AI-0048). Use them, but keep the state schema yours so you can switch runtimes.</li>
 </ol>
 <hr>
-<h2>Section 6 – Practical application and experimentation</h2>
+<h2>Section 6 &#8211; Practical application and experimentation</h2>
 <p><b>Objective.</b> Measure the accuracy/cost trade-off of context compaction on a realistic long-horizon task, producing a reusable compaction-aware agent loop.</p>
 <p><b>Problem being solved.</b> Agent costs scale with history; teams guess budgets. You want a measured default you can defend to clients.</p>
 <p><b>Suggested architecture.</b> The Section 5 loop. Model: Claude Fable 5.2 or Gemini 4 Neon (both 1M context, so the budget is a choice, not a limit). Runtime: Claude Agent SDK (Python) or Google ADK (GCP-first); tools via a small local MCP server (filesystem + shell in a sandbox). Tracing: OpenTelemetry to Langfuse v4 or LangSmith. Task set: 20 tasks from SWE-bench Lite (public, scored by tests) or 20 internal document-processing tasks with checkable answers.</p>
@@ -195,24 +195,24 @@
 <li>Inject a benign "planted instruction" into one tool output per run and record whether it survives compaction (security side-metric).</li>
 <li>Write up a one-page result and add the loop to your reusable repo.</li>
 </ol>
-<p><b>Expected outcome.</b> For a frontier model, accuracy within ±5 points of unlimited at 2-5x lower cost at 48K; larger variance at 16K; planted instructions do not persist past compaction.</p>
+<p><b>Expected outcome.</b> For a frontier model, accuracy within &#177;5 points of unlimited at 2-5x lower cost at 48K; larger variance at 16K; planted instructions do not persist past compaction.</p>
 <p><b>Evaluation criteria.</b> Pass rate per budget; $/task; P95 step latency; compaction count; injection persistence rate. Decision rule: adopt the smallest budget whose pass rate is within 3 points of unlimited.</p>
-<p><b>Optional second experiment (operational, 2 hours): MCP server inventory + canary credentials.</b> List every MCP server used in C&amp;T and client projects with version and transport; upgrade reference servers to ≥2.5.0 / mcp-server-git 2026.11.18; disable HTTP transports without Origin checks; seed a canary AWS key and URL in one agent's context and alert on any hit (AI-0056, AI-0057).</p>
+<p><b>Optional second experiment (operational, 2 hours): MCP server inventory + canary credentials.</b> List every MCP server used in C&amp;T and client projects with version and transport; upgrade reference servers to &#8805;2.5.0 / mcp-server-git 2026.11.18; disable HTTP transports without Origin checks; seed a canary AWS key and URL in one agent's context and alert on any hit (AI-0056, AI-0057).</p>
 <hr>
-<h2>Section 7 – My prioritized reading queue (first seven days, 30-60 min/day)</h2>
+<h2>Section 7 &#8211; My prioritized reading queue (first seven days, 30-60 min/day)</h2>
 <p>Essential (P1 core backlog, 24 items in the tracker). This week's slice:</p>
 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:13px"><tr><th align="left">Day</th><th align="left">Essential (min)</th><th align="left">Optional</th></tr>
-<tr><td valign="top">Tue 11-24</td><td valign="top">AI-0011 Building Effective Agents (20) · AI-0016 Lethal trifecta (10) · AI-0057 Dragos canary study (25)</td><td valign="top">AI-0015 OWASP LLM Top 10 skim</td></tr>
-<tr><td valign="top">Wed 11-25</td><td valign="top">AI-0012 Effective context engineering (20) · AI-0064 You don't need long context, sections 1-4 (40)</td><td valign="top">AI-0010 Context rot</td></tr>
-<tr><td valign="top">Thu 11-26</td><td valign="top">AI-0025 Fable/Mythos 5.2 announcement (15) · AI-0024 GPT-6.2 announcement (15)</td><td valign="top">AI-0026 Gemini 4 Carbon</td></tr>
-<tr><td valign="top">Fri 11-27</td><td valign="top">AI-0014 MCP spec: architecture, tools, authorization (30) · AI-0068 MCP vs CLI, skim (30)</td><td valign="top">AI-0054 MCP release cycle</td></tr>
+<tr><td valign="top">Tue 11-24</td><td valign="top">AI-0011 Building Effective Agents (20) &#183; AI-0016 Lethal trifecta (10) &#183; AI-0057 Dragos canary study (25)</td><td valign="top">AI-0015 OWASP LLM Top 10 skim</td></tr>
+<tr><td valign="top">Wed 11-25</td><td valign="top">AI-0012 Effective context engineering (20) &#183; AI-0064 You don't need long context, sections 1-4 (40)</td><td valign="top">AI-0010 Context rot</td></tr>
+<tr><td valign="top">Thu 11-26</td><td valign="top">AI-0025 Fable/Mythos 5.2 announcement (15) &#183; AI-0024 GPT-6.2 announcement (15)</td><td valign="top">AI-0026 Gemini 4 Carbon</td></tr>
+<tr><td valign="top">Fri 11-27</td><td valign="top">AI-0014 MCP spec: architecture, tools, authorization (30) &#183; AI-0068 MCP vs CLI, skim (30)</td><td valign="top">AI-0054 MCP release cycle</td></tr>
 <tr><td valign="top">Sat 11-28</td><td valign="top">Hands-on block: Section 6 experiment, steps 1-3 (120-180)</td><td valign="top">AI-0022 nanoGPT if time</td></tr>
-<tr><td valign="top">Sun 11-29</td><td valign="top">AI-0017 Securing patterns (45) · AI-0066 Task-tampering, abstract + Table 3 (15) · WEEKLY REVIEW</td><td valign="top">AI-0067 Agent swarms</td></tr>
-<tr><td valign="top">Mon 11-30</td><td valign="top">AI-0065 Memory Tax (60) · MONTHLY ASSESSMENT (baseline re-score)</td><td valign="top">AI-0046 AgentCore release notes</td></tr>
+<tr><td valign="top">Sun 11-29</td><td valign="top">AI-0017 Securing patterns (45) &#183; AI-0066 Task-tampering, abstract + Table 3 (15) &#183; WEEKLY REVIEW</td><td valign="top">AI-0067 Agent swarms</td></tr>
+<tr><td valign="top">Mon 11-30</td><td valign="top">AI-0065 Memory Tax (60) &#183; MONTHLY ASSESSMENT (baseline re-score)</td><td valign="top">AI-0046 AgentCore release notes</td></tr>
 </table>
 <p>Mark progress with <code>READ AI-xxxx</code>, <code>START AI-xxxx</code>, <code>SKIP AI-xxxx</code>. Nothing is marked Read automatically.</p>
 <hr>
-<h2>Section 8 – Knowledge checkpoint</h2>
+<h2>Section 8 &#8211; Knowledge checkpoint</h2>
 <ol>
 <li>In the compaction study, what three things must a compaction preserve, and which regime restarts the context after every single action?</li>
 <li>What is the "memory tax", and what baseline must an agent-memory system beat before it is worth deploying?</li>
@@ -229,7 +229,7 @@
 <li>A sandboxed per-session runtime for your own agent code with a managed MCP surface; they differ most in identity and policy integration (Entra Conditional Access vs IAM/RCPs vs Google OAuth-on-behalf-of vs self-hosting).</li>
 </ol>
 <hr>
-<h2>Section 9 – What deserves watching next</h2>
+<h2>Section 9 &#8211; What deserves watching next</h2>
 <ul>
 <li><b>AWS re:Invent (from 2026-11-30):</b> expect AgentCore, Bedrock model and Nova announcements; verify GA vs preview claims.</li>
 <li><b>Gemini 4 Carbon pricing doubles 2026-12-01</b>; Gemini 4 Neon GA on Gemini Enterprise not yet confirmed in release notes.</li>

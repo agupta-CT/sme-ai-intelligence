@@ -1,0 +1,337 @@
+<title>Applied AI Reading Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a research desk. Sticky header, summary strip, one working view at a time (queue / all / skills / briefs). */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --fg: #1a2230; --muted: #5b6676; --line: #d9dee6;
+  --accent: #1f5fbf; --accent-fg: #ffffff; --accent-soft: #e4ecf9;
+  --ok: #1e7f4f; --ok-soft: #e1f3e8; --warn: #a3650a; --warn-soft: #fbefd6; --crit: #b3261e; --crit-soft: #f9e2e0; --idle: #6b7482; --idle-soft: #eceff3;
+  --p1: #b3261e; --p2: #1f5fbf; --p3: #5b6676; --pw: #7a5aa6;
+  --font: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f141b; --surface: #161d26; --fg: #e6ebf2; --muted: #9aa6b6; --line: #2a3441;
+  --accent: #6ea3ff; --accent-fg: #0b1526; --accent-soft: #1b2a45;
+  --ok: #5cc48c; --ok-soft: #15301f; --warn: #e3a94a; --warn-soft: #3a2a10; --crit: #f08a82; --crit-soft: #3b1b19; --idle: #9aa6b6; --idle-soft: #222b36;
+  --p1: #f08a82; --p2: #6ea3ff; --p3: #9aa6b6; --pw: #c3a6ee;
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0f141b; --surface: #161d26; --fg: #e6ebf2; --muted: #9aa6b6; --line: #2a3441;
+  --accent: #6ea3ff; --accent-fg: #0b1526; --accent-soft: #1b2a45;
+  --ok: #5cc48c; --ok-soft: #15301f; --warn: #e3a94a; --warn-soft: #3a2a10; --crit: #f08a82; --crit-soft: #3b1b19; --idle: #9aa6b6; --idle-soft: #222b36;
+  --p1: #f08a82; --p2: #6ea3ff; --p3: #9aa6b6; --pw: #c3a6ee;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.45; margin: 0; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0; max-width: 1180px; margin: 0 auto; }
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding-block: 10px; }
+.top h1 { font-size: 17px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+.top .sub { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+nav.tabs { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+nav.tabs a { text-decoration: none; color: var(--muted); padding: 6px 10px; border-radius: var(--radius); font-weight: 500; }
+nav.tabs a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+.strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding-block: 14px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; min-width: 0; }
+.tile .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.tile .v { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.tile .v small { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+.note { font-size: 12px; color: var(--muted); padding-block: 4px 10px; }
+.note.alert { color: var(--warn); }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-block: 4px 12px; }
+.toolbar input, .toolbar select { font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px; min-width: 0; }
+.toolbar input[type=search] { flex: 1 1 200px; }
+.toolbar .count { color: var(--muted); font-family: var(--mono); font-size: 12px; margin-left: auto; }
+.list { display: grid; gap: 8px; padding-bottom: 32px; }
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; min-width: 0; }
+.item.done { opacity: 0.72; }
+.item .head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; min-width: 0; }
+.id { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.chip { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid transparent; letter-spacing: 0.02em; }
+.chip.P1 { color: var(--p1); border-color: var(--p1); } .chip.P2 { color: var(--p2); border-color: var(--p2); } .chip.P3 { color: var(--p3); border-color: var(--p3); } .chip.Watchlist { color: var(--pw); border-color: var(--pw); }
+.chip.cat { color: var(--muted); background: var(--idle-soft); font-weight: 500; }
+.item .title { font-weight: 600; font-size: 15px; text-wrap: balance; margin: 0; }
+.item .title a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); }
+.item .title a:hover { border-bottom-color: var(--accent); color: var(--accent); }
+.item .meta { color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; gap: 4px 12px; font-variant-numeric: tabular-nums; }
+.score { display: inline-flex; align-items: center; gap: 6px; }
+.score .bar { width: 72px; height: 6px; background: var(--idle-soft); border-radius: 3px; overflow: hidden; }
+.score .bar i { display: block; height: 100%; background: var(--accent); }
+.topics { display: flex; flex-wrap: wrap; gap: 4px; }
+.topics button { font: inherit; font-size: 11px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; cursor: pointer; }
+.topics button:hover { color: var(--accent); border-color: var(--accent); }
+.take { color: var(--fg); font-size: 13px; margin: 2px 0 0; }
+.take summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+.status { display: flex; flex-direction: column; gap: 4px; align-self: start; }
+.status button { font: inherit; font-size: 12px; text-align: left; padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; white-space: nowrap; }
+.status button[aria-pressed="true"] { font-weight: 600; }
+.status button[data-status="Not Started"][aria-pressed="true"] { background: var(--idle-soft); color: var(--fg); border-color: var(--idle); }
+.status button[data-status="In Progress"][aria-pressed="true"] { background: var(--warn-soft); color: var(--warn); border-color: var(--warn); }
+.status button[data-status="Read"][aria-pressed="true"] { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
+.status button[data-status="Skipped"][aria-pressed="true"] { background: var(--crit-soft); color: var(--crit); border-color: var(--crit); }
+.status button:disabled { opacity: 0.5; cursor: default; }
+.skills { display: grid; gap: 8px; padding-bottom: 32px; }
+.skill { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; display: grid; grid-template-columns: 2.2em 1fr auto; gap: 4px 12px; align-items: center; min-width: 0; }
+.skill .n { font-family: var(--mono); color: var(--muted); font-size: 12px; }
+.skill .name { font-weight: 600; }
+.skill .lv { display: flex; gap: 4px; align-items: center; }
+.skill .lv button { font: inherit; width: 28px; height: 28px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.skill .lv button:disabled { opacity: 0.4; cursor: default; }
+.skill .lv .num { font-family: var(--mono); font-weight: 600; width: 1.2em; text-align: center; }
+.ladder { grid-column: 2 / span 2; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.ladder span { height: 10px; border-radius: 3px; background: var(--idle-soft); position: relative; }
+.ladder span.on { background: var(--accent); }
+.ladder span.target::after { content: ""; position: absolute; right: -1px; top: -4px; width: 3px; height: 18px; background: var(--warn); border-radius: 2px; }
+.ladder span.base::before { content: ""; position: absolute; left: -1px; top: -4px; width: 3px; height: 18px; background: var(--muted); border-radius: 2px; }
+.skill .ev { grid-column: 2 / span 2; color: var(--muted); font-size: 12px; }
+.legend { color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; gap: 12px; padding-block: 0 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 4px; }
+.briefs { display: grid; gap: 8px; padding-bottom: 32px; }
+.brief { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+.brief h3 { margin: 0 0 4px; font-size: 15px; }
+.brief ol { margin: 6px 0 8px 18px; padding: 0; }
+.brief .links { display: flex; gap: 12px; flex-wrap: wrap; font-size: 13px; }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 20px; color: var(--muted); text-align: center; margin-bottom: 32px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: var(--radius); font-size: 13px; z-index: 20; }
+.cmd { font-family: var(--mono); font-size: 12px; }
+@media (max-width: 640px) {
+  .item { grid-template-columns: 1fr; }
+  .status { flex-direction: row; flex-wrap: wrap; }
+  .skill { grid-template-columns: 2.2em 1fr; }
+  .skill .lv { grid-column: 2; justify-self: start; }
+  .ladder, .skill .ev { grid-column: 1 / span 2; }
+}
+@media (prefers-reduced-motion: no-preference) { .status button, .topics button { transition: background 120ms, color 120ms; } }
+</style>
+
+<header class="top"><div class="wrap">
+  <div><h1>Applied AI Reading Tracker</h1><div class="sub" id="subline">loading tracker data</div></div>
+  <nav class="tabs" aria-label="Views">
+    <a href="#queue" data-view="queue">Queue</a>
+    <a href="#all" data-view="all">All items</a>
+    <a href="#skills" data-view="skills">Competencies</a>
+    <a href="#briefs" data-view="briefs">Briefs</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="strip" id="strip" aria-label="Summary"></section>
+  <div class="note" id="note">Status clicks save to the shared tracker store. The daily routine syncs them back into the CSV in git each morning.</div>
+
+  <section id="view-queue">
+    <div class="toolbar">
+      <select id="q-priority" aria-label="Priority"><option value="P1,P2">P1 + P2 (essential)</option><option value="P1">P1 only</option><option value="P1,P2,P3,Watchlist">Everything pending</option></select>
+      <span class="count" id="q-count"></span>
+    </div>
+    <div class="list" id="q-list"></div>
+  </section>
+
+  <section id="view-all" hidden>
+    <div class="toolbar">
+      <input type="search" id="f-search" placeholder="Search title, org, takeaway" aria-label="Search">
+      <select id="f-priority" aria-label="Priority filter"><option value="">Any priority</option><option>P1</option><option>P2</option><option>P3</option><option>Watchlist</option></select>
+      <select id="f-status" aria-label="Status filter"><option value="">Any status</option><option>Not Started</option><option>In Progress</option><option>Read</option><option>Skipped</option></select>
+      <select id="f-category" aria-label="Category filter"><option value="">Any category</option></select>
+      <select id="f-topic" aria-label="Topic filter"><option value="">Any topic</option></select>
+      <span class="count" id="f-count"></span>
+    </div>
+    <div class="list" id="a-list"></div>
+  </section>
+
+  <section id="view-skills" hidden>
+    <div class="legend"><span><i style="background:var(--accent)"></i>current level</span><span><i style="background:var(--muted)"></i>baseline (23 Nov 2026)</span><span><i style="background:var(--warn)"></i>90-day target</span><span>Levels: 1 awareness, 2 conceptual, 3 technical, 4 implementation, 5 architectural judgment</span></div>
+    <div class="skills" id="s-list"></div>
+  </section>
+
+  <section id="view-briefs" hidden>
+    <div class="briefs" id="b-list"></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var STATUSES = ["Not Started", "In Progress", "Read", "Skipped"];
+  var PRIO_ORDER = { P1: 0, P2: 1, P3: 2, Watchlist: 3 };
+  var state = { items: {}, comps: {}, meta: null, view: "queue", loaded: false, canWrite: null, db: null };
+  var inflight = {};
+  var filters = loadPref("filters", { search: "", priority: "", status: "", category: "", topic: "", qprio: "P1,P2" });
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function safeUrl(u) { return (typeof u === "string" && /^https:\/\//i.test(u)) ? u : ""; }
+  function loadPref(k, d) { try { var v = localStorage.getItem("tracker." + k); return v ? Object.assign({}, d, JSON.parse(v)) : d; } catch (e) { return d; } }
+  function savePref(k, v) { try { localStorage.setItem("tracker." + k, JSON.stringify(v)); } catch (e) {} }
+  function $(id) { return document.getElementById(id); }
+  function today() { return new Date().toISOString().slice(0, 10); }
+  var toastTimer;
+  function toast(msg) { var t = document.querySelector(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; document.body.appendChild(t); } t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.remove(); }, 2600); }
+
+  /* ---------- routing ---------- */
+  function viewFromHash() { var h = (location.hash || "#queue").slice(1); return ["queue", "all", "skills", "briefs"].indexOf(h) >= 0 ? h : "queue"; }
+  function showView() {
+    state.view = viewFromHash();
+    ["queue", "all", "skills", "briefs"].forEach(function (v) { $("view-" + v).hidden = v !== state.view; });
+    document.querySelectorAll("nav.tabs a").forEach(function (a) { if (a.dataset.view === state.view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    renderCurrent();
+  }
+  window.addEventListener("hashchange", showView);
+
+  /* ---------- rendering ---------- */
+  function itemsArr() { return Object.keys(state.items).map(function (k) { return state.items[k]; }); }
+  function pending(it) { return it.status === "Not Started" || it.status === "In Progress"; }
+  function renderStrip() {
+    var arr = itemsArr(), counts = { "Not Started": 0, "In Progress": 0, "Read": 0, "Skipped": 0 };
+    var p1min = 0, essMin = 0, weekNew = 0, cutoff = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+    arr.forEach(function (it) { counts[it.status] = (counts[it.status] || 0) + 1; if (pending(it) && it.priority === "P1") p1min += it.minutes || 0; if (pending(it) && (it.priority === "P1" || it.priority === "P2")) essMin += it.minutes || 0; if (it.discovered >= cutoff) weekNew++; });
+    var tiles = [
+      ["Tracked", arr.length, ""], ["Not started", counts["Not Started"], ""], ["In progress", counts["In Progress"], ""], ["Read", counts["Read"], ""], ["Skipped", counts["Skipped"], ""],
+      ["P1 reading left", Math.round(p1min / 60 * 10) / 10, "h"], ["P1 + P2 left", Math.round(essMin / 60 * 10) / 10, "h"], ["New in 7 days", weekNew, ""]
+    ];
+    $("strip").innerHTML = tiles.map(function (t) { return '<div class="tile"><div class="k">' + esc(t[0]) + '</div><div class="v">' + esc(t[1]) + (t[2] ? '<small>' + esc(t[2]) + '</small>' : '') + '</div></div>'; }).join("");
+  }
+  function itemCard(it) {
+    var url = safeUrl(it.url);
+    var title = url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(it.title) + '</a>' : esc(it.title);
+    var topics = (Array.isArray(it.topics) ? it.topics : []).map(function (t) { return '<button type="button" data-action="topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>'; }).join("");
+    var buttons = STATUSES.map(function (s) { return '<button type="button" data-action="status" data-id="' + esc(it.item_id) + '" data-status="' + esc(s) + '" aria-pressed="' + (it.status === s ? "true" : "false") + '"' + (state.canWrite === false || inflight[it.item_id] ? ' disabled' : '') + '>' + esc(s) + '</button>'; }).join("");
+    var done = it.status === "Read" || it.status === "Skipped";
+    return '<article class="item' + (done ? ' done' : '') + '" id="it-' + esc(it.item_id) + '">' +
+      '<div class="body"><div class="head"><span class="id">' + esc(it.item_id) + '</span><span class="chip ' + esc(it.priority) + '">' + esc(it.priority) + '</span><span class="chip cat">' + esc(it.category) + '</span></div>' +
+      '<h2 class="title">' + title + '</h2>' +
+      '<div class="meta"><span>' + esc(it.org) + '</span><span>published ' + esc(it.published) + '</span><span>' + esc(it.minutes) + ' min</span><span class="score" title="relevance score 0-100">score ' + esc(it.score) + ' <span class="bar"><i style="width:' + Math.max(0, Math.min(100, Number(it.score) || 0)) + '%"></i></span></span>' + (it.status_updated ? '<span>status ' + esc(String(it.status_updated).slice(0, 10)) + '</span>' : '') + '</div>' +
+      '<div class="topics">' + topics + '</div>' +
+      '<details class="take"><summary>key takeaway</summary><p>' + esc(it.takeaway) + '</p></details></div>' +
+      '<div class="status" role="group" aria-label="Status">' + buttons + '</div></article>';
+  }
+  function renderQueue() {
+    var allow = (filters.qprio || "P1,P2").split(",");
+    $("q-priority").value = filters.qprio || "P1,P2";
+    var arr = itemsArr().filter(function (it) { return pending(it) && allow.indexOf(it.priority) >= 0; });
+    arr.sort(function (a, b) { return (a.status === "In Progress" ? -1 : 0) - (b.status === "In Progress" ? -1 : 0) || PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority] || (b.score || 0) - (a.score || 0); });
+    var mins = arr.reduce(function (s, it) { return s + (it.minutes || 0); }, 0);
+    $("q-count").textContent = arr.length + " items, " + Math.round(mins / 60 * 10) / 10 + " h";
+    $("q-list").innerHTML = arr.length ? arr.map(itemCard).join("") : (state.loaded ? '<div class="empty">Nothing pending at this priority. Change the filter or wait for tomorrow’s scan.</div>' : '<div class="empty">Loading the tracker store…</div>');
+  }
+  function fillSelect(id, values, current) {
+    var sel = $(id), first = sel.options[0].outerHTML;
+    sel.innerHTML = first + values.map(function (v) { return '<option' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join("");
+    sel.value = current || "";
+  }
+  function renderAll() {
+    var arr = itemsArr();
+    var cats = {}, tops = {};
+    arr.forEach(function (it) { if (it.category) cats[it.category] = 1; (it.topics || []).forEach(function (t) { tops[t] = 1; }); });
+    fillSelect("f-category", Object.keys(cats).sort(), filters.category);
+    fillSelect("f-topic", Object.keys(tops).sort(), filters.topic);
+    $("f-search").value = filters.search || ""; $("f-priority").value = filters.priority || ""; $("f-status").value = filters.status || "";
+    var q = (filters.search || "").toLowerCase();
+    var out = arr.filter(function (it) {
+      if (filters.priority && it.priority !== filters.priority) return false;
+      if (filters.status && it.status !== filters.status) return false;
+      if (filters.category && it.category !== filters.category) return false;
+      if (filters.topic && (it.topics || []).indexOf(filters.topic) < 0) return false;
+      if (q && (it.title + " " + it.org + " " + it.takeaway + " " + it.item_id).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    out.sort(function (a, b) { return PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority] || (b.score || 0) - (a.score || 0); });
+    $("f-count").textContent = out.length + " of " + arr.length;
+    $("a-list").innerHTML = out.length ? out.map(itemCard).join("") : (state.loaded ? '<div class="empty">No items match these filters.</div>' : '<div class="empty">Loading the tracker store…</div>');
+  }
+  function renderSkills() {
+    var arr = Object.keys(state.comps).map(function (k) { return state.comps[k]; }).sort(function (a, b) { return a.num - b.num; });
+    $("s-list").innerHTML = arr.length ? arr.map(function (c) {
+      var ladder = "";
+      for (var l = 1; l <= 5; l++) ladder += '<span class="' + (l <= c.level ? "on" : "") + (l === c.target ? " target" : "") + (l === c.baseline ? " base" : "") + '"></span>';
+      var dis = state.canWrite === false || inflight["c" + c.num];
+      return '<div class="skill" id="sk-' + esc(c.num) + '"><span class="n">' + esc(String(c.num).padStart(2, "0")) + '</span><span class="name">' + esc(c.name) + '</span>' +
+        '<span class="lv"><button type="button" data-action="level" data-num="' + esc(c.num) + '" data-delta="-1"' + (dis || c.level <= 1 ? ' disabled' : '') + ' aria-label="lower level">−</button><span class="num">' + esc(c.level) + '</span><button type="button" data-action="level" data-num="' + esc(c.num) + '" data-delta="1"' + (dis || c.level >= 5 ? ' disabled' : '') + ' aria-label="raise level">+</button></span>' +
+        '<div class="ladder" aria-label="level ' + esc(c.level) + ' of 5, target ' + esc(c.target) + '">' + ladder + '</div>' +
+        '<div class="ev">assessed ' + esc(c.assessed) + ': ' + esc(c.evidence) + '</div></div>';
+    }).join("") : '<div class="empty">' + (state.loaded ? 'No competency rows yet.' : 'Loading the competency matrix…') + '</div>';
+  }
+  function renderBriefs() {
+    var m = state.meta, list = (m && Array.isArray(m.briefs)) ? m.briefs.slice().reverse() : [];
+    $("b-list").innerHTML = list.length ? list.map(function (b) {
+      var md = safeUrl(b.md), html = safeUrl(b.html);
+      return '<article class="brief"><h3>' + esc(b.date) + ' · ' + esc(b.title) + '</h3><ol>' + (Array.isArray(b.headlines) ? b.headlines.map(function (h) { return '<li>' + esc(h) + '</li>'; }).join("") : "") + '</ol><div class="links">' + (md ? '<a href="' + esc(md) + '" target="_blank" rel="noopener">Markdown</a>' : '') + (html ? '<a href="' + esc(html) + '" target="_blank" rel="noopener">HTML</a>' : '') + '</div></article>';
+    }).join("") : '<div class="empty">' + (state.loaded ? 'No briefs recorded yet.' : 'Loading…') + '</div>';
+  }
+  function renderSub() {
+    var m = state.meta, parts = [];
+    if (m && m.last_scan_end) parts.push("last scan " + String(m.last_scan_end).slice(0, 16).replace("T", " "));
+    if (m && m.last_sync) parts.push("csv sync " + String(m.last_sync).slice(0, 10));
+    var repo = m && safeUrl(m.repo);
+    $("subline").innerHTML = esc(parts.join(" · ") || "store not reachable yet") + (repo ? ' · <a href="' + esc(repo) + '" target="_blank" rel="noopener">repo</a>' : '');
+  }
+  function renderCurrent() {
+    renderStrip(); renderSub();
+    if (state.view === "queue") renderQueue(); else if (state.view === "all") renderAll(); else if (state.view === "skills") renderSkills(); else renderBriefs();
+  }
+
+  /* ---------- interactions ---------- */
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-action]"); if (!b) return;
+    if (b.dataset.action === "status") setStatus(b.dataset.id, b.dataset.status);
+    else if (b.dataset.action === "level") setLevel(b.dataset.num, Number(b.dataset.delta));
+    else if (b.dataset.action === "topic") { filters.topic = b.dataset.topic; savePref("filters", filters); location.hash = "#all"; renderCurrent(); }
+  });
+  ["f-search", "f-priority", "f-status", "f-category", "f-topic"].forEach(function (id) {
+    $(id).addEventListener("input", function () { filters[id.slice(2)] = $(id).value; savePref("filters", filters); renderAll(); });
+  });
+  $("q-priority").addEventListener("input", function () { filters.qprio = $("q-priority").value; savePref("filters", filters); renderQueue(); });
+
+  function setStatus(id, status) {
+    var it = state.items[id]; if (!it || it.status === status || inflight[id]) return;
+    if (!state.db) { toast("Store not available: status not saved. Use READ " + id + " in chat."); return; }
+    inflight[id] = true; renderCurrent();
+    state.db.doc("items/" + id).update({ status: status, status_updated: new Date().toISOString(), status_source: "tracker", last_reviewed: today() })
+      .then(function () { toast(id + " → " + status); })
+      .catch(function (e) { if (e && e.code === "invalid_argument") { state.canWrite = false; toast("You can view this tracker but not change it."); } else toast("Could not save: " + (e && e.code ? e.code : "error")); })
+      .then(function () { delete inflight[id]; renderCurrent(); });
+  }
+  function setLevel(num, delta) {
+    var c = state.comps["c" + String(num).padStart(2, "0")]; if (!c) return;
+    var next = Math.max(1, Math.min(5, (c.level || 1) + delta)); if (next === c.level || inflight["c" + num]) return;
+    if (!state.db) { toast("Store not available: level not saved."); return; }
+    var hist = Array.isArray(c.history) ? c.history.slice() : []; hist.push({ date: today(), level: next, note: "set in tracker" });
+    inflight["c" + num] = true; renderCurrent();
+    state.db.doc("competencies/c" + String(num).padStart(2, "0")).update({ level: next, assessed: today(), history: hist })
+      .then(function () { toast(c.name + " → level " + next); })
+      .catch(function (e) { if (e && e.code === "invalid_argument") state.canWrite = false; toast("Could not save: " + (e && e.code ? e.code : "error")); })
+      .then(function () { delete inflight["c" + num]; renderCurrent(); });
+  }
+
+  /* ---------- data ---------- */
+  showView();
+  var loadTimer = setTimeout(function () { if (!state.loaded) { $("note").textContent = "The tracker store has not answered yet. Showing what is cached, if anything; it may be out of date."; $("note").className = "note alert"; } }, 10000);
+  function markLoaded(snapMeta) { if (snapMeta && snapMeta.fromCache === false && !state.loaded) { state.loaded = true; clearTimeout(loadTimer); $("note").textContent = "Status clicks save to the shared tracker store. The daily routine syncs them back into the CSV in git each morning."; $("note").className = "note"; } }
+  function onErr(e) { clearTimeout(loadTimer); $("note").textContent = "Live data stopped (" + (e && e.code ? e.code : "error") + "). Reload the page to reconnect."; $("note").className = "note alert"; }
+
+  var cap = (window.claude && typeof window.claude.use === "function") ? window.claude : { use: function () { return Promise.resolve(null); } };
+  cap.use("db").then(function (db) {
+    if (!db) { clearTimeout(loadTimer); state.canWrite = false; $("note").textContent = "Sign in on claude.ai to load the shared tracker store; nothing can be shown or changed without it."; $("note").className = "note alert"; state.loaded = true; renderCurrent(); return; }
+    state.db = db;
+    db.collection("items").limit(1000).onSnapshot(function (snap) {
+      var next = {}; snap.docs.forEach(function (d) { if (d.exists) { var v = d.data(); if (v && v.item_id) next[v.item_id] = v; } });
+      state.items = next; markLoaded(snap.metadata); renderCurrent();
+    }, onErr);
+    db.collection("competencies").limit(50).onSnapshot(function (snap) {
+      var next = {}; snap.docs.forEach(function (d) { if (d.exists) next[d.id] = d.data(); });
+      state.comps = next; renderCurrent();
+    }, onErr);
+    db.doc("meta/status").onSnapshot(function (d) { state.meta = d.exists ? d.data() : null; renderSub(); if (state.view === "briefs") renderBriefs(); }, function () {});
+  });
+  cap.use("user").then(function (u) {
+    if (!u) return;
+    u.can("data.write").then(function (ok) { if (ok === false) { state.canWrite = false; $("note").textContent = "You can view this tracker. Only the owner and contributors can change statuses."; renderCurrent(); } });
+  });
+})();
+</script>

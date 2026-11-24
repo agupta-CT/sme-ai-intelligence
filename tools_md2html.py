@@ -46,6 +46,8 @@ except Exception:
         if l.strip()=="": close_list(); i+=1; continue
         close_list(); out.append("<p>%s</p>"%inline(l)); i+=1
     close_list(); body="\n".join(out)
-doc = '<html><body style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#222;max-width:900px">'+body+'</body></html>'
+def to_entities(t):
+    return "".join(c if ord(c) < 128 else "&#%d;" % ord(c) for c in t)
+doc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#222;max-width:900px;margin:0 auto;padding:16px">'+to_entities(body)+'</body></html>'
 open(sys.argv[2],"w").write(doc)
 print(mode, "html bytes:", len(doc))
