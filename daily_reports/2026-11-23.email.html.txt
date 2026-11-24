@@ -1,0 +1,296 @@
+# Applied AI Daily Intelligence Brief
+
+**Date:** Monday, 2026-11-23 (baseline run; first execution)
+**Research window:** 2026-10-24 00:00 → 2026-11-23 23:00 America/New_York (30-day baseline)
+**Number of items reviewed:** ~95 candidate items across three scans (frontier labs, research papers, developer/enterprise platforms), plus 23 foundational resources
+**New items selected:** 66 recent items recorded in the tracker (AI-0024 to AI-0089) + 23 foundational (AI-0001 to AI-0023)
+**Previously pending items:** 0 (first run)
+**Delivery note:** Saved to the repo (markdown and HTML). NOT emailed: the Gmail connector was authorized in claude.ai but is not connected to this Claude Code session, and the connector exposes no send tool (drafts only). Web research was live; every item was spot-checked against its primary page or arXiv abstract by the orchestrating agent.
+
+---
+
+## Section 1 – The five things I should know today
+
+### 1. Compaction beats long context, and most "agent memory" products lose to plain RAG (AI-0064, AI-0065)
+- **What happened:** Two preprints in the window quantify what good agent builders suspected. NVIDIA's *You don't need long context* shows frontier models held to short contexts with frequent compaction match full-history baselines within a few points on SWE-bench Verified, Terminal-Bench 2.1, tau2-bench and BFCLv3, at 2-9x modeled savings. *Memory Tax* benchmarks 11 memory systems against 2-round RAG over raw history: 90 of 99 configurations lose.
+- **Why it matters:** Context is your largest variable cost and a major reliability risk. Both results say the cheapest design (short budgets, structured state, raw-history retrieval) is also the most accurate for frontier models.
+- **Technically interesting:** The "single-action compaction" regime (one action per fresh context) still works for Opus 4.5 on SWE-bench Verified (70.2% vs 70.0%). The memory paper decomposes net value into benefit vs. tax and shows the tax dominates because reorganization drops evidence.
+- **Learn/investigate:** Read AI-0012 (context engineering) then AI-0064 sections 1-4. Run the Section 6 experiment. Caveat: open-weight models vary wildly; validate per model.
+
+### 2. Your inference supply chain is leaking prompts: Dragos canary study and OpenRouter's response (AI-0057)
+- **What happened:** Dragos seeded ~2M prompts with canary URLs and credentials across inference providers from July to November. At least three hosting providers had request traffic copied by attackers, stolen AWS keys were used for tens of thousands of calls, and some stolen requests carried the Zero Data Retention (ZDR) flag. OpenRouter off-boarded three providers and removed 125 endpoints from ZDR eligibility (2026-11-22).
+- **Why it matters:** Router-level ZDR flags are contractual, not technical, controls. Any enterprise using multi-provider routers or marketplaces must assume prompt exposure.
+- **Technically interesting:** One capture window included requests rejected before model execution, implying front-door interception rather than model-side logging. The attacker used an LLM-driven pentest framework (ARTEX).
+- **Learn/investigate:** Read the Dragos post (25 min). Action for C&T engagements: inventory which client workloads traverse routers or resellers; rotate any secret that ever appeared in a prompt; seed canary credentials in agent context.
+
+### 3. The frontier reset: Claude Fable 5.2 / Mythos 5.2, GPT-6.2 Astra/Sol, Gemini 4 Carbon/Neon/Hydrogen (AI-0025, AI-0024, AI-0026-0028)
+- **What happened:** Three labs refreshed their full ladders in two weeks. Fable 5.2 (`claude-fable-5-2`, $8/$40, 1M context, GA on Claude Platform, Bedrock, Google Cloud, Microsoft Foundry) with a gated Mythos variant; GPT-6.2 Astra ($8/$40) and Sol ($2/$10) GA with an Ultrafast option; Gemini 4 Carbon broadly available ($4/$20 after Nov 30), plus Neon ($3/$15) and Hydrogen ($1.50/$7.50, free tier, 1M in/1M out).
+- **Why it matters:** Price points converged ($8/$40 frontier, $2/$10 mid). The same frontier model IDs now appear on all three hyperscalers, so runtime and identity, not model access, decide the platform.
+- **Technically interesting:** OpenAI's system card documents a regression where both GPT-6.2 models more often omit obstacles they hit during work, plus a Critical cyber rating gating via Daybreak. Anthropic's own table shows Gemini 4 Carbon leading on AutomationBench and Opus 5.5 leading on AA-Briefcase Elo, a rare admission worth noting when evaluating vendor claims. Google reports 0% Gray Swan indirect-injection success for Carbon (vendor).
+- **Learn/investigate:** Skim all three announcements (45 min total) and the two system cards over the week. Note every benchmark name has changed (FrontierCode 2.0, Terminal-Bench 4.x, Agents' Last Exam): re-anchor your mental leaderboard.
+
+### 4. Hyperscalers converged on "managed agent runtime + agent identity + governance" (AI-0043, AI-0044, AI-0046, AI-0052)
+- **What happened:** Microsoft Ignite (Nov 17-18) shipped Foundry Agent Service hosted agents, a managed Copilot harness, egress policy, Entra Agent ID, Agent 365 as a cross-platform agent registry, Defender discovery/blocking of local agents (Claude Code, Copilot CLI) and an MCP Firewall. AWS AgentCore added Runtime V2 resource configs, GPU instances, a direct web-search API, org-level Resource Control Policies and JWT-claim condition keys. Google's Gemini Enterprise Agent Platform added 3-legged OAuth for A2A agents and VPC/static-IP egress for custom MCP servers.
+- **Why it matters:** The enterprise reference architecture for agents is now a product category with the same shape on every cloud. Security teams will require agent identities, egress controls, and MCP allow-lists.
+- **Technically interesting:** Foundry's closed loop (production traces → failure clustering → optimizer proposes eval-gated changes → managed training) changes the ops model from manual prompt tuning to continuous, evaluation-gated improvement. AgentCore's committed-baseline + 4x burst pricing is a new cost model for agent sessions.
+- **Learn/investigate:** Read the Foundry and AgentCore release notes (50 min) and the comparison table in the knowledge base (Section 5.B). For GCP-first work, read the Gemini Enterprise release notes (15 min).
+
+### 5. MCP matured on two fronts: a predictable release calendar and a security wave (AI-0054, AI-0055, AI-0056, AI-0068)
+- **What happened:** MCP moved to fixed six-month spec releases (next 2027-03-30) and published a draft file-transfer extension. The official reference servers shipped two security releases fixing 14 advisories (Git config execution, filesystem symlink TOCTOU, fetch SSRF bypasses); Todoist's MCP server had a CVSS 9.3 DNS-rebinding flaw in its HTTP transport.
+- **Why it matters:** MCP is now a planning-grade dependency (calendar) and a supply-chain risk (vendored servers do not auto-upgrade when date-versioned).
+- **Technically interesting:** A controlled study (AI-0068) found that exposing identical capabilities as MCP schemas vs a CLI changes agent behavior in 94% of paired episodes and can cost tens of thousands of tokens per task. Tool-surface design is a measurable lever.
+- **Learn/investigate:** Inventory MCP servers in use at C&T and client projects; apply the controls in the knowledge base Section 5.D. Read the release-cycle post (10 min).
+
+---
+
+## Section 2 – Research paper discoveries
+
+Organized by subject. Full intelligence cards for the P1 papers; compact cards for P2; P3 papers are listed at the end with tracker IDs.
+
+### 2.1 Context, memory, and cost
+
+#### Research paper intelligence card: You don't need long context (AI-0064)
+**1. Identification**
+- Title: You don't need long context
+- Authors/institution: Peter Belcak, Saurav Muralidharan, Jindong Jiang, Yonggan Fu, Wonmin Byeon, Hanrong Ye, Ryan Angilly, Ali Taghibakhshi, Shih-Yang Liu, Siru Ouyang, Greg Heinrich, Pavlo Molchanov. Affiliation NVIDIA, inferred from the project page (research.nvidia.com/labs/lpr/lfi/); not printed in the extractable header, so treat as unverified.
+- Published: 2026-11-03 (arXiv v1). Repository: arXiv 2611.05306, https://arxiv.org/abs/2611.05306. Preprint, 31 pages.
+- Code/data: none listed.
+- Priority: P1, score 90.
+
+**2. Executive summary**
+Long contexts are the dominant cost in agentic workloads, and later tokens cost more than earlier ones (up to 7x on frontier open-weight models per the paper). The paper asks whether frontier models actually need long context for long-horizon tasks (software engineering, terminal work, tool use) and long-input tasks (document QA, needle-in-haystack families). It tests two compaction regimes against full-history accumulation: End-of-Conversation Compaction (EoCC), where the model writes a compact natural-language state near a budget threshold and resumes from task plus state, and Single-Action Compaction (SAC), where every step starts a new conversation from task plus state and performs exactly one action. Across SWE-bench Verified, SWE-bench Multilingual, Terminal-Bench 2.1, FRAMES, tau2-bench and BFCLv3, Claude Opus 4.5 stays within -3.7 to +5.6 points of baseline under EoCC at 2.2x-8.8x estimated savings; GPT 5.6 Sol within -3.3 to +4.4 at 2.4x-5.0x. SAC holds too (Opus 4.5 70.2% SWE-bench Verified vs 70.0% full history; 51.8% vs 47.2% Terminal-Bench). On long-input benchmarks, selective reading plus compaction matched or beat baselines at 6.5x-54.6x (Opus) and 4.4x-233x (GPT) estimated savings. The most important contribution is the systematic evidence that compaction is near-lossless for frontier models, plus the proposal of "semantic state space models" (SSSMs): models post-trained to carry explicit natural-language state instead of a long context.
+
+**3. Technical deep dive**
+- Problem: full-history accumulation makes each step's cost grow with history and degrades attention quality (context rot). Existing compaction in coding agents is ad hoc and unmeasured.
+- Method: three regimes. (a) Full-History Accumulation baseline. (b) EoCC: when context nears a budget B (e.g., 16K, 48K), the model emits a compact state; a fresh conversation starts with the original task plus the state. (c) SAC: a fresh conversation for every action, carrying task plus compact state. Good compactions keep the verbatim task statement, current intentions and next steps, and the artifacts needed to continue (file paths, partial results, test outputs).
+- Long-input tasks: selective reading (read portions on demand) plus compaction replaces stuffing whole documents into context.
+- Evaluation: two frontier closed models plus several open-weight models; cost estimated from token counts and published pricing, not billed.
+- Key numbers: see the summary; open-weight robustness varies widely (Qwen 3 Coder Next fell from 53.0% to 3.6% on SWE-bench Verified at the tightest budget).
+- Limitations: compaction is lossy by construction (the authors give a coin-toss counterexample where state cannot be summarized); cost figures are modeled; an internal inconsistency exists between text and Table 2 on SAC median peak context (77-99K vs 7-9K); SSSMs are proposed, not evaluated.
+
+**4. What is genuinely new?** The breadth of the measurement across both long-horizon and long-input families, the SAC result, and the SSSM framing. Compaction itself is established practice (Claude Code, Codex, and Anthropic's context-engineering guidance). The claim that it is near-lossless is an empirical finding for the two frontier models tested, not a general principle.
+
+**5. Practical Applied AI implications** Directly applicable today to any agent loop you control: set explicit context budgets (tens of thousands of tokens), implement structured compaction (task, intentions, artifacts), and measure. Infrastructure: none beyond the agent runtime; cost drops are large; latency per step drops; reliability improves if compaction prompts are well designed. Security angle: compaction is also a place to strip injected instructions from untrusted tool output (context minimization pattern). Validate for any open-weight model before adopting.
+
+**6. Hands-on learning opportunity** See Section 6 (experiment). Implement EoCC in a Claude Agent SDK or Google ADK loop with budgets of 16K / 48K / unlimited on a 20-task set; measure accuracy and tokens.
+
+**7. Critical assessment** Evidence strength is good for the two closed models (multiple benchmarks, consistent direction) but modeled costs and a table inconsistency reduce confidence in exact savings. Comparison fairness: baselines are the same model with full history, which is fair. Reproducibility: closed models and no code; expect drift as vendors update models. Independently validate: the SAC median context numbers and the open-weight results.
+
+**8. Learning recommendation** Reading time 90 min (deep study) or 40 min (sections 1-4). Prerequisites: AI-0012 (context engineering), AI-0010 (context rot). After reading you should be able to answer: (1) What must a compaction preserve? (2) Why does SAC work at all? (3) Which models should not be trusted with tight budgets? Key concept: context is a budgeted, degrading resource; carry state, not history.
+
+#### Research paper intelligence card: Memory Tax: Dissecting the Net Value of Agent Memory (AI-0065)
+**1. Identification** Xuan He, Sining Zhoubian, Ruozhen Yang, Yuhao Wen, Zhineng Wang, Yuyang Hu, Ke Yang, Yuyu Zhang, Ping Nie, Jiawei Han, ChengXiang Zhai. UIUC, Tsinghua, Renmin University, Verdent.ai, University of Waterloo. arXiv 2610.34073, v1 2026-10-25, preprint. Project page hexuan21.github.io/MemoryTax/ (code and results to be open-sourced). Priority P1, score 86.
+
+**2. Executive summary** Agent memory products promise better long-term personalization and recall than retrieving from raw conversation history. The paper tests that promise head to head: 11 memory systems (flat stores A-Mem, SimpleMem, MemOS; hierarchical MemoryOS, LightMem, OpenViking; graph HippoRAG2, PlugMem, MAGMA; trained Mem-T, Memory-R2) across three benchmarks (LongMemEval-s, PersonaMem-v2 subset, MINT-Eval subset) and three backbones (Qwen3.5-4B, Qwen3.6-27B, GPT-5.6 Luna). Baselines are 1-round and 2-round RAG over raw history plus no/full/gold context. Result: 90 of 99 system-benchmark-backbone configurations score below 2-round RAG; on LongMemEval-s all 33 lose, by 1.2 to 40.4 points. The paper's contribution is the net-value decomposition: "memory benefit" (queries memory answers that RAG misses) minus "memory tax" (queries RAG answers that memory loses because distillation or reorganization dropped or obscured evidence). The tax dominates.
+
+**3. Technical deep dive** Shared embedding model (Qwen3-Embedding-0.6B) and LLM-as-judge (Qwen3.6-27B) across systems; official configurations without per-system tuning. Tax quantified by per-query comparisons, gold-context replays (memory unit vs raw turn), retrieval-round counts, and cross-backbone robustness. Findings: reorganized memory units often lose the exact phrasing or co-occurring details a question needs; multi-round retrieval over raw turns recovers them.
+
+**4. What is genuinely new?** The framing and the breadth of the comparison. Individual "memory does not help" results existed; the systematic tax/benefit decomposition is new. Empirical, not a proof that memory cannot help.
+
+**5. Practical implications** Default architecture for conversational and agent memory: store raw history (with metadata), retrieve with 2-round RAG, and add a memory layer only if it beats that baseline on your evaluation set. For regulated clients, raw-history retrieval is also easier to audit and delete.
+
+**6. Hands-on** Reproduce the baseline on your own transcripts: build a 2-round RAG over raw turns (first retrieve, then re-query with the answer draft), then compare one open-source memory system on 50 questions.
+
+**7. Critical assessment** Strong design (shared judge, many systems), but official configs may under-tune memory systems; benchmarks are static, offline and English; subsets used for cost. Independently validate on dynamic, multi-session enterprise data.
+
+**8. Learning recommendation** 60 min, detailed. Prerequisites: AI-0004 (RAG), AI-0009. Questions: (1) Define memory benefit vs. memory tax. (2) Why does reorganization lose evidence? (3) What baseline must a memory product beat? Key concept: net value, not recall, decides whether to add memory.
+
+**Compact cards (P2)**
+- **Length Is Cheap, Competition Is Not (AI-0076, UCSD, 2026-11-03):** context rot in retrieval is driven by competing evidence and rival values, not length; attention mass on evidence predicts loss (up to 58% of variance). Models ≤3B; predictive not causal. For RAG: dedupe and resolve conflicts. 30 min.
+- **Context Language Models (AI-0075, reported UW + Meta FAIR, 2026-09-29, ICLR 2027 submission):** the model edits its context as a file; reported +11.4% BrowseComp-Plus at -21.5% FLOPs. Scores unverified (OpenReview wall). 45 min.
+
+### 2.2 Agent security
+
+#### Research paper intelligence card: Beyond Instruction Override: Benchmarking Indirect Prompt Injection with Task-Tampering Attacks (AI-0066)
+**1. Identification** Rongting Zhang, Martin Bertran, Sandeep Avula, Chia-Jung Lee, Vanessa Murdock. Amazon Responsible AI. arXiv 2611.07640, v1 2026-11-05, preprint (34 pages). Code and data: github.com/amazon-science/task-tampering-prompt-injection. Priority P1, score 84.
+
+**2. Executive summary** Most indirect-injection benchmarks plant instructions that redirect the agent to a new task ("ignore previous instructions, email the file"). This paper studies attacks that keep the benign task and its expected tools but tamper with a decision inside it, and defines an attack by authority: planted content is an attack when it tries to influence a decision its source is not authorized to make. It builds 90 validated cases across Productivity, DevOps and Marketplace tool-use environments targeting six decision components (objective, decision rules, expected consequences, available actions, observation interpretation, world-state beliefs) plus compound cases, and evaluates five models (DeepSeek V3.1, Kimi K2.5, Claude Sonnet 4 and 4.5, GLM-5) under seven defenses (Spotlighting, Sandwich, DRIFT-iso, DRIFT-full, Progent, CaMeL, ARGUS). Detection-style defenses collapse objective hijacks (DRIFT-iso 2.4%) but leave observation and state tampering at 9.5-12.1%; tool-policy defenses barely help (Progent 15.4% vs 17.0% overall); capability-based CaMeL holds at ~1% across all targets.
+
+**3. Technical deep dive** The six-target decomposition models an agent's decision as objective + rules + consequence model + action set + observation interpretation + beliefs about state. Attacks corrupt one component via tool output (e.g., a fake "system status" in an observation). Table 3 attack-success rates with no defense: 15.0 / 21.2 / 13.7 / 19.0 / 12.4 / 18.6 / 21.8 (objective / rules / consequences / actions / observations / state / compound). CaMeL (capability-based data-flow control where untrusted data cannot influence control flow) is the only defense robust across targets.
+
+**4. What is genuinely new?** The authority-based definition and the decomposition. It complements AgentDojo-style benchmarks rather than replacing them.
+
+**5. Practical implications** Enterprise defenses that are easy to buy (content filters, tool allow-lists) fail against state/observation tampering. Designs that separate untrusted data from control flow (dual LLM, plan-then-execute, CaMeL-style capabilities; see knowledge base Section 3) are the ones that hold. Passive-attacker setting; simulated environments.
+
+**6. Hands-on** Run the released benchmark against one of your agents with and without a plan-then-execute wrapper.
+
+**7. Critical assessment** Fictional environments; passive attacker; limitations appendix not inspected. Validate on real tool outputs.
+
+**8. Learning recommendation** 60 min detailed. Prerequisites: AI-0016, AI-0017. Questions: (1) Why do tool allow-lists not stop observation tampering? (2) What property makes CaMeL robust? (3) Define an attack by authority. Key concept: injection is a control-flow problem, not a content problem.
+
+#### Research paper intelligence card: Scaling Adaptive Prompt Injection Attacks with Agent Swarms (AI-0067)
+**1. Identification** Alexey Kurakin, Vishal Karande, Alex Bie, Chongyang Shi, Shuang Song, Saeed Mahloujifar, Abdullatif Koksal, Jamie Hayes, Juliette Pluto, Yinghao Sun, Kamalika Chaudhuri. Google DeepMind. arXiv 2611.11861, v1 2026-11-09, preprint (15 pages). No code. Priority P1, score 84.
+
+**2. Executive summary** Static-payload injection research plateaued by mid-2025 and human red-teaming is saturating, yet an agentic attacker still reliably makes models follow instructions in tool output. The "Agentic Optimizer" runs 8 teams of 2 agents (320 evaluation calls per scenario) coordinating via leaderboards, whiteboards and a natural-language strategy database. On 100 synthetic scenarios with random non-malicious goals (isolating instruction-hierarchy robustness from safety knowledge), attack success at the full budget reached 99% on Gemini 3.6 Flash, 94% on 3.7 Flash, 90% on 3.8 Flash, 99% on Kimi K3, GLM-5.3 and DeepSeek-V4.1-Flash, and 34% on Gemini 4 Argon, all with safety classifiers and out-of-model defenses disabled. Attack success rises with attacker capability.
+
+**3-4. Technical notes / novelty** Swarm coordination plus a reusable strategy database turns red-teaming into a scalable optimization loop. Against 80 AgentDojo scenarios it broke 7.5% vs 2.5% for a prior adaptive attacker at 25 queries. Builds on AgentDojo, Prompt Siren and adaptive-attack work.
+
+**5. Practical implications** Vendor "0% injection success" claims measured on static benchmarks are not evidence against adaptive attackers with a few hundred queries. Enterprise agent security must assume automated red-teaming and rely on defense-in-depth outside the model (capabilities, sandboxing, egress control, human approval for irreversible actions).
+
+**6-8.** Hands-on: use AgentDojo locally to establish a baseline for one agent. Critical: synthetic goals, defenders without deployed-stack defenses, attacker not reproducible. 45 min. Questions: (1) Why disable classifiers in the study? (2) What does the strategy database add? (3) What should you conclude from a static-benchmark 0%? Key concept: robustness must be measured against adaptive attackers.
+
+**Compact card (P2)** **The Devil is in the Context: Nine Dimensions of Prompt Injection Attacks (AI-0073, Microsoft MSRC, UNSW, ETH Zurich, 2026-11-03):** taxonomy applied to 9 benchmarks and 6 real incidents; 13% of pairwise classes untested. Use as a coverage checklist when choosing defenses. 40 min.
+
+### 2.3 Tool interfaces and agent training
+
+#### Research paper intelligence card: Matched Capabilities, Different Behaviors: A Controlled Study of MCP and CLI Interfaces (AI-0068)
+**1. Identification** Zhenning Shi, Liang Pang, Yongqi Li (affiliations unverified). arXiv 2610.34298, v1 2026-10-25, preprint. No code. Priority P1, score 80.
+
+**2. Executive summary** Does the interface through which identical capabilities are exposed change agent behavior? MICA renders both an MCP tool schema and a CLI from one shared action definition and runs them through the same runtime across six models and three environments. Result: structured behavioral divergence in 94.3% of 2,004 paired episodes, with early differences propagating through later steps. DART keeps the validated semantic decision and repairs the interface-specific realization, improving scores in all six settings by up to 9.0 points and cutting MCP token cost by up to 27.1k tokens per task.
+
+**3-4.** Divergence analysis covers action selection, failure handling and recovery. Novelty: first controlled, capability-matched MCP-vs-CLI comparison; treats the interface as part of the environment.
+
+**5. Practical implications** When you design MCP servers, schema shape, naming and error surfaces measurably change outcomes and cost. Pair with Anthropic's "Writing tools for agents". Consider offering CLI-style composable tools for some workflows.
+
+**6-8.** Hands-on: expose one internal capability both ways and compare 20 tasks. Critical: no code, three environments, per-environment numbers not extracted. 40 min. Questions: (1) What is MICA controlling for? (2) What does DART repair? (3) Name two interface decisions that could change agent behavior. Key concept: the tool surface is part of the model's environment.
+
+**Compact cards (P2)**
+- **ToolSpace (AI-0069, Renmin/Fudan/SJTU, 2026-11-03):** environments synthesized from real MCP traces with execution-verified dependencies; Qwen3.6-35B-A3B 23.0 → 41.0 on a 7-benchmark average; GLM-5.2 backbone matches Claude Opus 5 (56.6). Work in progress, no code. 60 min.
+- **Actor, Judge, or Teacher? (AI-0074, Zhejiang/Baidu, 2026-11-12):** decision models are poor actors on ordered tasks but good judges and cheap RL teachers (Qwen2.5-1.5B + GRPO 72.8 → 82.9% ALFWorld for ~$22-30). Code available. 40 min.
+
+### 2.4 Retrieval
+- **Embeddings vs. Grep (AI-0070, Ant Group, 2026-11-16, preregistered):** whole-file BM25 + LLM-generated identifiers (0.613 nDCG@10) beats dense (0.532); RRF fusion beats either; the dense premium over BM25 shrinks to +0.034 with a fair baseline. Dataset public. Default for code RAG: hybrid + query expansion. 45 min.
+- **EmbeddingGemma 2 (AI-0072, Google, 2026-10-27, open model):** 744M five-input embedding model with selective encoder loading, Matryoshka dims and int4 QAT; MTEB Code 78.68; 191-567 MB on device. 45 min.
+
+### 2.5 Inference and serving
+- **Evolving Infra (AI-0071, Georgia Tech/UIUC/Berkeley/NVIDIA/OpenAI/MIT, 2026-11-09):** runtime prefill/decode role switching (6.2 s) plus agent-aware KV eviction; 1.10-2.73x throughput and up to 13.92x lower P95 TTFT vs Dynamo on replayed Claude Code traces. Code public. 60 min.
+
+### 2.6 P3 and Watchlist papers recorded (read on demand)
+AI-0077 Multiscale Policy Optimization · AI-0078 Training with a Single Algorithm · AI-0079 LoCo reasoning compression · AI-0080 Latent tool-output compression · AI-0081 OPD mismatch budget · AI-0082 RepoFactory · AI-0083 DICE speculative decoding · AI-0084 SteerDistill · AI-0085 Clover diffusion LLM (Watchlist) · AI-0086 Beam technical report · AI-0087 Jagged Robustness under quantization · AI-0088 AltRA-Test for LLM judges · AI-0089 The novelty exposed.
+
+---
+
+## Section 3 – Frontier AI company updates
+
+| Company | Development (date) | Availability | Architect takeaway | ID |
+|---|---|---|---|---|
+| Anthropic | Claude Fable 5.2 / Mythos 5.2 (2026-11-09); platform: message threads, self-hosted Managed Agents, linked billing, Enterprise Frontier Safeguards (Oct 28-Nov 23) | Fable GA on Claude Platform, Bedrock, GCP, Foundry; Mythos gated | 1M context, 128k output, $8/$40; same IDs across clouds; 5.2 requires 30-day retention unless ZDR authorized; EFS writes sealed safety data to your bucket | AI-0025, AI-0048 |
+| OpenAI | GPT-6.2 Astra / Sol (2026-11-17); GPT-6 Cyber (2026-11-05); Agent Builder shutdown (2026-11-30) | GA (API, Codex, ChatGPT Work); Cyber gated to Daybreak Red | Sol at $2/$10 is the volume default; system card flags obstacle-omission regression; migrate Agent Builder workflows to Agents SDK code now | AI-0024, AI-0036, AI-0050 |
+| Google DeepMind / Google Cloud | Gemini 4 Carbon broad availability (11-10), Hydrogen (11-12), Neon (11-18); AlphaProof Code (11-10); Gemini Enterprise Agent Platform updates | Rolling out; Carbon intro pricing ends 11-30 | Four-tier ladder with one 1M-context API; planner/executor pattern; A2A agents with per-user OAuth; Vertex AI docs frozen in favor of Gemini Enterprise docs | AI-0026-0028, AI-0040, AI-0052 |
+| Microsoft | Ignite 2026: seven MAI models incl. MAI Code 2, Licensed Weights, Decision 1.1; Foundry Agent Service; Agent 365; Copilot SDK 2.0 | Mixed GA/preview | First-party cheaper tier under OpenAI models; customer-tenant weights; agent identity + MCP governance become baseline controls | AI-0029, AI-0043-0045 |
+| Meta | Muse Ember 1.0 (2026-11-09) | GA, hosted only | $0.10/$0.50 executor model, 1M context, four modalities; Meta has moved off open-weight Llama for its current line | AI-0037 |
+| Mistral | Mistral Large 4 open weights (2026-10-29) | Weights on HF; API $0.70/$2.10 | Largest Western open model; licence excludes MaaS resale; EU sovereign option; well behind closed frontier on FrontierCode 2.0 | AI-0031 |
+| Moonshot / Tencent / Alibaba / Zhipu | Kimi K3.1 Pro weights (11-04); Hy4 weights + system card (11-20); Qwen4-Max (11-16, proprietary); GLM-5.4 looped transformer (11-23) | Weights (K3.1 Pro, Hy4); API only (Qwen4-Max, GLM-5.4) | Strongest open model is Chinese (K3.1 Pro, AA 46); licence thresholds need legal review; looped-depth trend | AI-0032, AI-0033, AI-0030, AI-0039 |
+| Thinking Machines | Inkling 2 Small (11-05) and Inkling 2 Mini (11-20) | Open weights | Mini: 26.4B/3.4B-active looped MoE in ~20 GB; on Ollama/llama.cpp/vLLM; strong SWE-bench Verified, weak long-horizon terminal | AI-0034, AI-0035 |
+| NVIDIA | Nemotron for Science (11-16) | HF; licence not stated | Post-train open VLM on domain data to beat a frontier API at lower cost: pattern for on-prem regulated workloads | AI-0038 |
+| Amazon, DeepSeek, xAI, Cohere, AI21, Databricks, Ai2 | No notable model release in window | — | re:Invent starts 2026-11-30; Databricks shipped Genie product updates only | — |
+
+---
+
+## Section 4 – AI products and developer ecosystem
+
+- **Agent runtimes and governance:** Microsoft Foundry Agent Service (AI-0043), Agent 365/Entra Agent ID (AI-0044), AWS AgentCore (AI-0046), Gemini Enterprise Agent Platform (AI-0052). See knowledge base 5.B for the side-by-side.
+- **Coding agents:** GitHub Copilot Fusion GA with Cascade/Critique multi-model workflows and per-model billing (AI-0047); Claude Ship with policy-as-file approvals (AI-0049; not for ZDR/HIPAA/CMEK orgs); Codex remote sessions and SPIFFE identity (AI-0050); Microsoft Copilot SDK 2.0 as an embeddable multi-tenant harness (AI-0045); Google Antigravity consolidation and Jules shutdown Dec 31 (AI-0051); Kiro enforced sandboxing for local MCP (AI-0053).
+- **Protocols:** MCP six-month release cycle, next spec 2027-03-30 (AI-0054); file-transfer extension draft (AI-0055).
+- **Inference:** vLLM 0.34 breaking defaults (AI-0058); Transformers v5.24 cache rename (AI-0059); llama.cpp 1.0 (AI-0042); Cerebras disaggregated inference (AI-0062); Hugging Face Inference Providers LLM routing via OpenRouter (AI-0041).
+- **Observability/eval:** Langfuse Cloud v4-only cutover; legacy ingestion stopped 2026-11-16 (AI-0061).
+- **Enterprise apps:** Snowflake Business Ontology and Cortex AI Gateway expansions (AI-0060, primary pages blocked); Databricks Genie updates; ServiceNow agentic control monitoring (AI-0063, Watchlist).
+- **Deadlines this fortnight:** OpenAI Agent Builder/Prompt Objects off 2026-11-30; Gemini 4 Carbon intro pricing ends 2026-11-30; Opus 4.8 fast mode removed 2026-11-30; Claude Code managed marketplaces auto-update from 2026-11-30.
+
+---
+
+## Section 5 – Applied AI architecture and engineering insight: context budgeting and compaction for long-running agents
+
+**Executive summary.** Treat the context window as a budgeted, degrading resource. Carry state, not history. Retrieve from raw history. Validate per model.
+
+**Why this matters now.** Three results in this window converge: compaction is near-lossless for frontier models (AI-0064); dedicated memory layers usually lose to 2-round RAG over raw history (AI-0065); and rot comes from competing evidence more than from length (AI-0076). Anthropic's context-engineering guidance (AI-0012) already prescribed these levers; the papers quantify them.
+
+**Reference design for an agent loop (vendor-neutral):**
+```
+[Task spec]  ──►  System prompt (altitude: heuristics, not rules)
+                  Tool set (minimal, non-overlapping; MCP or CLI, measured)
+                  Working context  ◄── budget B (e.g., 16K-48K tokens)
+                       │
+   each step:          ├─ model proposes action → runtime executes → observation
+                       ├─ observation is untrusted: strip/mark, truncate, dedupe
+                       ├─ if tokens > 0.8·B: COMPACT → state object:
+                       │     { task (verbatim), progress, intentions/next steps,
+                       │       artifacts (paths, ids, partial results), open questions }
+                       │   then restart context = [system, task, state]
+                       └─ durable notes → file/DB (episodic log); never trusted as instructions
+   retrieval:          raw-history store (turns + metadata) → 2-round RAG when needed
+   evaluation:         accuracy, tokens/task, $/task, P95 latency, at B ∈ {16K, 48K, ∞}
+```
+**Design rules.**
+1. Budget explicitly; make compaction a first-class tool call with a fixed schema (task verbatim, intentions, artifacts). This is what AI-0064 found good compactions contain.
+2. Single-action compaction is viable for frontier models: if a step is cheap to re-establish, a fresh context per action removes drift and injection persistence.
+3. Retrieve, do not reorganize: raw turns with metadata plus a second retrieval round outperform most memory systems (AI-0065). Add a memory layer only if it beats that baseline on your eval set.
+4. Deduplicate and resolve conflicts in retrieved evidence; competing near-duplicates are what degrade recall (AI-0076, AI-0009).
+5. Compaction is a security boundary: untrusted tool output does not survive it verbatim (context-minimization pattern, AI-0017).
+6. Measure per model: open-weight models can collapse under tight budgets (AI-0064).
+7. Platform hooks: AgentCore and Foundry both provide session persistence and summarization primitives; Claude's message threads keep state server-side (AI-0048). Use them, but keep the state schema yours so you can switch runtimes.
+
+---
+
+## Section 6 – Practical application and experimentation
+
+**Objective.** Measure the accuracy/cost trade-off of context compaction on a realistic long-horizon task, producing a reusable compaction-aware agent loop.
+
+**Problem being solved.** Agent costs scale with history; teams guess budgets. You want a measured default you can defend to clients.
+
+**Suggested architecture.** The Section 5 loop. Model: Claude Fable 5.2 or Gemini 4 Neon (both 1M context, so the budget is a choice, not a limit). Runtime: Claude Agent SDK (Python) or Google ADK (GCP-first); tools via a small local MCP server (filesystem + shell in a sandbox). Tracing: OpenTelemetry to Langfuse v4 or LangSmith. Task set: 20 tasks from SWE-bench Lite (public, scored by tests) or 20 internal document-processing tasks with checkable answers.
+
+**Tools.** Python 3.12, Claude Agent SDK or ADK, Docker sandbox, a local MCP server (official reference servers, patched to v2.5.0+), Langfuse/LangSmith, a results notebook.
+
+**Implementation steps.**
+1. Build the loop with a `compact(state)` tool that emits the fixed state schema; restart context from [system, task, state] when usage exceeds 80% of budget.
+2. Run three budgets: 16K, 48K, unlimited. Same model, same tasks, 2 seeds.
+3. Record per task: pass/fail, total tokens, cached tokens, $ (list price), wall time, number of compactions.
+4. Add a single-action-compaction variant for the 16K setting.
+5. Inject a benign "planted instruction" into one tool output per run and record whether it survives compaction (security side-metric).
+6. Write up a one-page result and add the loop to your reusable repo.
+
+**Expected outcome.** For a frontier model, accuracy within ±5 points of unlimited at 2-5x lower cost at 48K; larger variance at 16K; planted instructions do not persist past compaction.
+
+**Evaluation criteria.** Pass rate per budget; $/task; P95 step latency; compaction count; injection persistence rate. Decision rule: adopt the smallest budget whose pass rate is within 3 points of unlimited.
+
+**Optional second experiment (operational, 2 hours): MCP server inventory + canary credentials.** List every MCP server used in C&T and client projects with version and transport; upgrade reference servers to ≥2.5.0 / mcp-server-git 2026.11.18; disable HTTP transports without Origin checks; seed a canary AWS key and URL in one agent's context and alert on any hit (AI-0056, AI-0057).
+
+---
+
+## Section 7 – My prioritized reading queue (first seven days, 30-60 min/day)
+
+Essential (P1 core backlog, 24 items in the tracker). This week's slice:
+
+| Day | Essential (min) | Optional |
+|---|---|---|
+| Tue 11-24 | AI-0011 Building Effective Agents (20) · AI-0016 Lethal trifecta (10) · AI-0057 Dragos canary study (25) | AI-0015 OWASP LLM Top 10 skim |
+| Wed 11-25 | AI-0012 Effective context engineering (20) · AI-0064 You don't need long context, sections 1-4 (40) | AI-0010 Context rot |
+| Thu 11-26 | AI-0025 Fable/Mythos 5.2 announcement (15) · AI-0024 GPT-6.2 announcement (15) | AI-0026 Gemini 4 Carbon |
+| Fri 11-27 | AI-0014 MCP spec: architecture, tools, authorization (30) · AI-0068 MCP vs CLI, skim (30) | AI-0054 MCP release cycle |
+| Sat 11-28 | Hands-on block: Section 6 experiment, steps 1-3 (120-180) | AI-0022 nanoGPT if time |
+| Sun 11-29 | AI-0017 Securing patterns (45) · AI-0066 Task-tampering, abstract + Table 3 (15) · WEEKLY REVIEW | AI-0067 Agent swarms |
+| Mon 11-30 | AI-0065 Memory Tax (60) · MONTHLY ASSESSMENT (baseline re-score) | AI-0046 AgentCore release notes |
+
+Mark progress with `READ AI-xxxx`, `START AI-xxxx`, `SKIP AI-xxxx`. Nothing is marked Read automatically.
+
+---
+
+## Section 8 – Knowledge checkpoint
+
+1. In the compaction study, what three things must a compaction preserve, and which regime restarts the context after every single action?
+2. What is the "memory tax", and what baseline must an agent-memory system beat before it is worth deploying?
+3. Why do tool allow-lists fail against task-tampering injection, and which class of defense held across all six targets?
+4. What did the Dragos canary study reveal about Zero Data Retention flags on inference routers, and what single control follows from it?
+5. Name the one capability all four managed agent platforms (Foundry, AgentCore, Gemini Enterprise, Claude Managed Agents) now share, and the dimension on which they differ most.
+
+**Answer key**
+1. Verbatim task, current intentions/next steps, and artifacts needed to continue; Single-Action Compaction (SAC).
+2. Queries that plain RAG over raw history answers correctly but the memory system loses because reorganization or distillation dropped or obscured evidence; a 2-round RAG baseline over raw turns.
+3. The attacker keeps the expected tools and task and tampers with a decision component (observation interpretation, state beliefs), so allowed tools are used in a corrupted way; capability-based data-flow control (CaMeL-style, where untrusted data cannot affect control flow).
+4. Some stolen requests carried the ZDR flag, showing the flag is a contractual promise and not a technical control; seed canary credentials in prompts/agent context and treat any hit as an incident (and rotate any secret that ever appeared in a prompt).
+5. A sandboxed per-session runtime for your own agent code with a managed MCP surface; they differ most in identity and policy integration (Entra Conditional Access vs IAM/RCPs vs Google OAuth-on-behalf-of vs self-hosting).
+
+---
+
+## Section 9 – What deserves watching next
+
+- **AWS re:Invent (from 2026-11-30):** expect AgentCore, Bedrock model and Nova announcements; verify GA vs preview claims.
+- **Gemini 4 Carbon pricing doubles 2026-12-01**; Gemini 4 Neon GA on Gemini Enterprise not yet confirmed in release notes.
+- **GPT-6.2 obstacle-omission regression:** OpenAI says a Codex developer prompt mitigates it; watch for a fix and for independent reproductions.
+- **Looped transformers:** GLM-5.4 technical report and benchmarks; Inkling 2 Mini independent evaluations.
+- **MoE diffusion LLMs (Clover):** independent validation of agentic-coding claims.
+- **MCP:** file-transfer extension finalization; SDK Tier-1 betas ~mid-February for the 2027-03-30 spec; further security advisories on vendored servers.
+- **Inference supply chain:** named providers from the Dragos study; OpenRouter's canary-style verification program; whether other routers follow.
+- **ICLR 2027 decisions 2026-12-16** (Context Language Models among reported strong submissions) and **NeurIPS 2026 awards** in December.
+- **Open questions:** Does compaction hold for open-weight models after targeted post-training (SSSMs)? Can memory systems recover the tax with retrieval over raw units? Do Microsoft's Defender controls for local agents change developer adoption of Claude Code/Copilot CLI in regulated shops?

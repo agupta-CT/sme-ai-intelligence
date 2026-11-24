@@ -49,3 +49,14 @@ Owner: Maverick TG (C&T). Purpose: persistent store for the daily Applied AI int
 ## Delivery (owner-supplied)
 
 Email the daily brief to the two owner-confirmed addresses (configured in the cloud routine prompt and in the role prompt, not stored here) with subject `Daily - AI Digest (SME Edition) - <Date>`. Requires the Gmail connector. If unavailable, record "not emailed" in the daily log and never claim delivery. Recipient addresses are personal data: keep this file private and do not copy the addresses into reports, commits to shared repos, or external services.
+
+## Interactive tracker (artifact with shared database)
+
+- URL: https://claude.ai/artifact/NzvWjDV2KJFuz4ZVmE69Mo (private; share from the page's Share menu).
+- Views: Queue (pending P1/P2 by score), All items (search + filters by priority, status, category, topic), Competencies (15 levels with baseline and target markers, +/- to set), Briefs (links to each daily report).
+- Store: `items/{item_id}` (same fields as the CSV plus `status_updated`, `status_source`), `competencies/c01..c15`, `meta/status`. Clicking a status writes `status`, `status_updated`, `status_source: "tracker"`.
+- Sync rule (daily routine, Step 1): tracker status wins and is written back to the CSV with a history note; new scan items are written to both. Git stays the system of record; the artifact store is the interaction layer. Seeded 2026-11-24 from the CSV (89 items, 15 competencies).
+
+## Email rendering
+
+`python3 tools_email.py daily_reports/<date>.md --tracker AI_Research_Reading_Tracker.csv --artifact <tracker url> --repo <repo url> --out daily_reports/<date>.email.html` produces an email-safe HTML (header with facts and buttons, the five headlines as cards, priority and backlog charts, the full brief with every URL, arXiv ID and tracker ID as an active link, the Section 5 diagram rendered to PNG when Chrome is available), a `.txt` alternative and a `.manifest.json` of inline images (cid:att0...). Delivery order: SMTP with app password (env GMAIL_SMTP_USER / GMAIL_APP_PASSWORD) > Gmail send tool > Gmail draft > "not emailed".
