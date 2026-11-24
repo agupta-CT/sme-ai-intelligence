@@ -17,13 +17,14 @@ Owner: Maverick TG (C&T). Purpose: persistent store for the daily Applied AI int
 
 ## Tracker schema (`AI_Research_Reading_Tracker.csv`)
 
-`item_id,title,category,org_authors,url,published_date,discovered_date,priority,score,status,est_read_min,key_takeaway,topics,follow_up,last_reviewed,history`
+`item_id,title,category,org_authors,url,published_date,discovered_date,priority,score,status,est_read_min,key_takeaway,topics,follow_up,last_reviewed,history,card_url,kb_url`
 
 - `item_id`: stable, sequential, zero-padded: `AI-0001`, `AI-0002`, ... Never reuse or renumber.
 - `category`: research | product | framework | company | platform | security | foundational | resource
 - `priority`: P1 | P2 | P3 | Watchlist
 - `score`: 0-100 (weights: tech significance 25, applied-AI impact 25, novelty 20, industry relevance 15, strategic 15)
 - `status`: Not Started | In Progress | Read | Skipped | Archived. ONLY the owner moves an item to Read.
+- `card_url` / `kb_url`: GitHub links (with heading anchors) to the item's intelligence card in the daily brief and to its knowledge-base section. The tracker store additionally holds `summary` (150-300 words for P1/P2, 2-4 sentences for P3/Watchlist) and `card_date`; the CSV keeps only the short `key_takeaway`.
 - `history`: semicolon-separated `YYYY-MM-DD: note` entries for updates to an existing item (no duplicate rows).
 - Duplicate check before insert: match on URL, arXiv ID, DOI, or normalized title.
 

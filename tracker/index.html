@@ -70,6 +70,10 @@ nav.tabs a[aria-current="page"] { background: var(--accent-soft); color: var(--a
 .topics button:hover { color: var(--accent); border-color: var(--accent); }
 .take { color: var(--fg); font-size: 13px; margin: 2px 0 0; }
 .take summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+.take.analysis p { margin: 5px 0; max-width: 72ch; }
+.take.analysis p b { color: var(--accent); font-weight: 600; }
+.links { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; margin-top: 4px; }
+.links a { text-decoration: none; border-bottom: 1px dotted var(--accent); }
 .status { display: flex; flex-direction: column; gap: 4px; align-self: start; }
 .status button { font: inherit; font-size: 12px; text-align: left; padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; white-space: nowrap; }
 .status button[aria-pressed="true"] { font-weight: 600; }
@@ -208,8 +212,17 @@ nav.tabs a[aria-current="page"] { background: var(--accent-soft); color: var(--a
       '<h2 class="title">' + title + '</h2>' +
       '<div class="meta"><span>' + esc(it.org) + '</span><span>published ' + esc(it.published) + '</span><span>' + esc(it.minutes) + ' min</span><span class="score" title="relevance score 0-100">score ' + esc(it.score) + ' <span class="bar"><i style="width:' + Math.max(0, Math.min(100, Number(it.score) || 0)) + '%"></i></span></span>' + (it.status_updated ? '<span>status ' + esc(String(it.status_updated).slice(0, 10)) + '</span>' : '') + '</div>' +
       '<div class="topics">' + topics + '</div>' +
-      '<details class="take"><summary>key takeaway</summary><p>' + esc(it.takeaway) + '</p></details></div>' +
+      '<details class="take"><summary>key takeaway</summary><p>' + esc(it.takeaway) + '</p></details>' +
+      (it.summary ? '<details class="take analysis"><summary>analysis (' + esc(String(it.summary).split(/\s+/).length) + ' words)</summary>' + analysisHtml(it.summary) + '</details>' : '') +
+      '<div class="links">' + (url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">Source</a>' : '') +
+      (safeUrl(it.card_url) ? '<a href="' + esc(safeUrl(it.card_url)) + '" target="_blank" rel="noopener">Intelligence card' + (it.card_date ? ' (' + esc(it.card_date) + ')' : '') + '</a>' : '') +
+      (safeUrl(it.kb_url) ? '<a href="' + esc(safeUrl(it.kb_url)) + '" target="_blank" rel="noopener">Knowledge base</a>' : '') + '</div></div>' +
       '<div class="status" role="group" aria-label="Status">' + buttons + '</div></article>';
+  }
+  var LABELS = /\s+(?=(?:Problem|Method|Contribution|Evaluation|Results|What is new|What it builds on|What shipped|Why it matters|Limitations|Limits|Caveats|Caveat|Relevance|Watchlist|Architecture|Mechanism|Findings|Pricing|Claims|Safety|Deprecation|Migration path|Security|Governance|Gateway|Harness|Agent Registry|Practical rule|Practical reading|Practical rules|Status|Model-card numbers|Independent|Enterprise and security|Vendor-reported|Vendor claim|Reported|Suggested first exercise|Outcome to aim for|Use it|Read it|Pair with|Advice|Guidance|Lessons|Core distinction|Patterns|Tool design|Also|GA|Preview|Licensing|Budget)[^:]{0,45}:\s)/g;
+  function analysisHtml(text) {
+    var parts = esc(String(text)).replace(LABELS, "\n").split("\n");
+    return parts.map(function (p) { return '<p>' + p.replace(/^([A-Z][^:]{0,60}):/, '<b>$1:</b>') + '</p>'; }).join("");
   }
   function renderQueue() {
     var allow = (filters.qprio || "P1,P2").split(",");
