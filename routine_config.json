@@ -1,0 +1,18 @@
+{
+  "_comment": "Draft cloud-routine body for RemoteTrigger create. NOT yet created. Prerequisites: (1) Gmail connector authorized at claude.ai/customize/connectors so routines can send mail; (2) a cloud-reachable store for the tracker: push this folder to a private GitHub repo and put its URL in sources. Cron format mirrors the account's existing routines. 07:00 America/New_York.",
+  "name": "Daily AI Digest (SME Edition)",
+  "cron_expression": "CRON_TZ=America/New_York 0 7 * * *",
+  "enabled": true,
+  "job_config": {
+    "ccr": {
+      "environment_id": "env_019fbsoG94Fr3RHoMnj4V7QD",
+      "session_context": {
+        "model": "claude-opus-5-5",
+        "sources": [ { "git_repository": { "url": "https://github.com/<ORG>/<REPO-FOR-SME-AI>" } } ],
+        "allowed_tools": ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "WebSearch", "WebFetch", "Agent"]
+      },
+      "events": [ { "data": { "uuid": "<lowercase v4 uuid>", "session_id": "", "type": "user", "parent_tool_use_id": null,
+        "message": { "role": "user", "content": "You are the Personal Applied AI Intelligence, Research & Learning Agent for the repo owner. Unattended run: do not ask questions; state assumptions in the report.\n\n1. Read README.md, AI_Intelligence_Daily_Log.md (find 'Last successful scan end'), AI_Research_Reading_Tracker.csv, and Applied_AI_Knowledge_Base.md.\n2. Scan the web from the last successful scan end to now: frontier labs (OpenAI, Anthropic, Google DeepMind, Meta, Microsoft, NVIDIA, xAI, AWS, Mistral, DeepSeek, Qwen, Cohere, AI21, Hugging Face, Databricks, others), arXiv/HF daily papers (reasoning, agents, context/memory, RAG, training, inference, multimodal, evals, safety/security, architectures), and developer/enterprise platforms (AWS/Azure/GCP agent platforms, coding agents, MCP, agent frameworks, inference engines, observability/eval, security incidents). Primary sources first; fetch the official page for every item you report. Never fabricate; mark unverified details.\n3. Score each item 0-100 (tech significance 25, applied-AI impact 25, novelty 20, industry relevance 15, strategic 15); assign P1/P2/P3/Watchlist; de-duplicate against the tracker by URL/arXiv ID/title (append to history instead of adding a duplicate). Aim for 5-10 high-value items; do not pad.\n4. Write daily_reports/<YYYY-MM-DD>.md in the nine-section format used by daily_reports/2026-11-23.md (five things to know; paper intelligence cards; company updates; developer ecosystem; one engineering insight; one experiment; reading queue from the tracker; 3-5 checkpoint questions with answer key; what to watch). Technical depth over volume.\n5. Append new rows to the tracker with sequential IDs (continue from the max existing AI-xxxx), append a dated entry to knowledge base Section 5, append a run entry to the daily log (window, counts, limitations, delivery status). Never mark items Read.\n6. On Sundays also write the weekly review into Weekly_AI_Research_Review.md; on the last day of the month add a competency assessment to Applied_AI_Learning_Roadmap.md.\n7. Commit and push all changes with message 'daily digest <date>'.\n8. If a Gmail/email tool is available, send the full report to the recipients listed in README.md under Delivery with subject 'Daily - AI Digest (SME Edition) - <Date>'. If not available, say so in the log and in the final message. Never claim an email was sent when it was not." } } } ]
+    }
+  }
+}
