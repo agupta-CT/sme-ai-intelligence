@@ -48,4 +48,4 @@ Owner: Maverick TG (C&T). Purpose: persistent store for the daily Applied AI int
 
 ## Delivery (owner-supplied)
 
-Email the daily brief to the two addresses the owner specified in the role prompt (a personal Gmail address and the owner's C&T work address) with subject `Daily - AI Digest (SME Edition) - <Date>`. Requires the Gmail connector. If unavailable, record "not emailed" in the daily log and never claim delivery. Recipient addresses are personal data: keep this file private and do not copy the addresses into reports, commits to shared repos, or external services.
+Email the daily brief to the two owner-confirmed addresses (configured in the cloud routine prompt and in the role prompt, not stored here) with subject `Daily - AI Digest (SME Edition) - <Date>`. Requires the Gmail connector. If unavailable, record "not emailed" in the daily log and never claim delivery. Recipient addresses are personal data: keep this file private and do not copy the addresses into reports, commits to shared repos, or external services.
