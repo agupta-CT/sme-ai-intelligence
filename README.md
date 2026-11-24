@@ -43,7 +43,7 @@ Owner: Maverick TG (C&T). Purpose: persistent store for the daily Applied AI int
 
 ## Schedule (target)
 
-- Daily scan: 07:00 America/New_York (= 12:00 UTC in EST, 11:00 UTC in EDT)
+- Daily scan: 06:00 America/New_York (= 12:00 UTC in EST, 11:00 UTC in EDT)
 - Weekly review: Sunday
 - Monthly competency assessment: last day of month
 

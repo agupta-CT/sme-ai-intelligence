@@ -1,7 +1,7 @@
 {
-  "_comment": "Draft cloud-routine body for RemoteTrigger create (status 2026-11-23: creation attempted, refused with github_token_missing: the owner's GitHub account must be connected to claude.ai Code before a routine can use a repository source). Recipients live in the routine prompt, not in this repo. 07:00 America/New_York.",
+  "_comment": "Draft cloud-routine body for RemoteTrigger create (status 2026-11-23: creation attempted, refused with github_token_missing: the owner's GitHub account must be connected to claude.ai Code before a routine can use a repository source). Recipients live in the routine prompt, not in this repo. 06:00 America/New_York.",
   "name": "Daily AI Digest (SME Edition)",
-  "cron_expression": "CRON_TZ=America/New_York 0 7 * * *",
+  "cron_expression": "CRON_TZ=America/New_York 0 6 * * *",
   "enabled": true,
   "job_config": {
     "ccr": {
